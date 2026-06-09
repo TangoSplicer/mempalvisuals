@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/graph_provider.dart';
+import '../widgets/graph_canvas.dart';
 
 class GraphScreen extends ConsumerWidget {
   const GraphScreen({super.key});
@@ -13,30 +15,34 @@ class GraphScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Knowledge Graph'),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_balance),
+            onPressed: () => context.go('/palace'),
+            tooltip: 'Switch to Memory Palace',
+          ),
+          if (graphState.hasValue)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: Text(
+                  '${graphState.value!.nodes.length} Nodes',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+        ],
       ),
       body: graphState.when(
-        data: (data) => _buildGraphCanvas(data.nodes.length, data.edges.length),
+        data: (data) => Stack(
+          children: [
+            Positioned.fill(
+              child: GraphCanvas(nodes: data.nodes, edges: data.edges),
+            ),
+          ],
+        ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error loading graph: $error')),
-      ),
-    );
-  }
-
-  Widget _buildGraphCanvas(int nodeCount, int edgeCount) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.hub, size: 64, color: Colors.deepPurple),
-          const SizedBox(height: 16),
-          Text(
-            'Graph Canvas Placeholder\nNodes: $nodeCount | Edges: $edgeCount',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          const Text('2D spatial rendering engine pending.'),
-        ],
       ),
     );
   }
