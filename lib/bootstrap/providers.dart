@@ -7,12 +7,14 @@ import '../features/palace/domain/repositories/i_palace_repository.dart';
 import '../features/palace/data/repositories/palace_repository_impl.dart';
 import '../features/timeline/domain/repositories/i_timeline_repository.dart';
 import '../features/timeline/data/repositories/timeline_repository_impl.dart';
+import '../features/search/domain/repositories/i_search_repository.dart';
+import '../features/search/data/repositories/search_repository_impl.dart';
 
 part 'providers.g.dart';
 
 @Riverpod(keepAlive: true)
 IMemPalaceAdapter memPalaceAdapter(MemPalaceAdapterRef ref) {
-  return MockMemPalaceAdapter(targetNodeCount: 1000);
+  return MockMemPalaceAdapter(targetNodeCount: 1000); 
 }
 
 @Riverpod(keepAlive: true)
@@ -31,4 +33,10 @@ IPalaceRepository palaceRepository(PalaceRepositoryRef ref) {
 ITimelineRepository timelineRepository(TimelineRepositoryRef ref) {
   final adapter = ref.watch(memPalaceAdapterProvider);
   return TimelineRepositoryImpl(adapter);
+}
+
+@Riverpod(keepAlive: true)
+ISearchRepository searchRepository(SearchRepositoryRef ref) {
+  final adapter = ref.watch(memPalaceAdapterProvider);
+  return SearchRepositoryImpl(adapter);
 }

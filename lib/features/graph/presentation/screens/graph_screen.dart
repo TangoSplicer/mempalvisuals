@@ -17,6 +17,11 @@ class GraphScreen extends ConsumerWidget {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => context.go('/search'),
+            tooltip: 'Search Knowledge Graph',
+          ),
+          IconButton(
             icon: const Icon(Icons.account_balance),
             onPressed: () => context.go('/palace'),
             tooltip: 'Memory Palace Builder',
@@ -26,16 +31,6 @@ class GraphScreen extends ConsumerWidget {
             onPressed: () => context.go('/timeline'),
             tooltip: 'Timeline Explorer',
           ),
-          if (graphState.hasValue)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: Text(
-                  '${graphState.value!.nodes.length} Nodes',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            )
         ],
       ),
       body: graphState.when(
@@ -47,8 +42,7 @@ class GraphScreen extends ConsumerWidget {
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text('Error loading graph: $error')),
+        error: (error, stack) => Center(child: Text('Error loading graph: $error')),
       ),
     );
   }

@@ -8,13 +8,11 @@ abstract interface class IMemPalaceAdapter {
   Future<void> dispose();
 
   /// Retrieves a paginated list of nodes.
-  Future<List<Map<String, dynamic>>> fetchNodes(
-      {int limit = 1000, int offset = 0});
+  Future<List<Map<String, dynamic>>> fetchNodes({int limit = 1000, int offset = 0});
 
   /// Retrieves a paginated list of edges.
-  Future<List<Map<String, dynamic>>> fetchEdges(
-      {int limit = 1000, int offset = 0});
-
+  Future<List<Map<String, dynamic>>> fetchEdges({int limit = 1000, int offset = 0});
+  
   /// Retrieves all configured Memory Palaces.
   Future<List<Map<String, dynamic>>> fetchPalaces();
 
@@ -22,8 +20,10 @@ abstract interface class IMemPalaceAdapter {
   Future<void> savePalace(Map<String, dynamic> palaceData);
 
   /// Retrieves chronological events linked to the graph.
-  Future<List<Map<String, dynamic>>> fetchTimelineEvents(
-      {int limit = 500, int offset = 0});
+  Future<List<Map<String, dynamic>>> fetchTimelineEvents({int limit = 500, int offset = 0});
+
+  /// Executes an offline text search against nodes.
+  Future<List<Map<String, dynamic>>> searchNodes(String query);
 
   /// Executes a raw query against the MemPalace engine.
   Future<Map<String, dynamic>> executeQuery(String query);

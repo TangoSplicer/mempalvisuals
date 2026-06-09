@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/graph/presentation/screens/graph_screen.dart';
 import '../../features/palace/presentation/screens/palace_screen.dart';
 import '../../features/timeline/presentation/screens/timeline_screen.dart';
+import '../../features/search/presentation/screens/search_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/graph',
@@ -17,6 +18,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/timeline',
       builder: (context, state) => const TimelineScreen(),
+    ),
+    GoRoute(
+      path: '/search',
+      builder: (context, state) => const SearchScreen(),
     ),
   ],
 );
