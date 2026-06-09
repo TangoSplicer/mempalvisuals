@@ -1,0 +1,45 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+Mac/
+*.sqlite
+*.db
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+lib/generated_plugin_registrant.dart
+
+# Code generation
+*.g.dart
+*.freezed.dart
+*.drift.dart
+
+# Coverage
+coverage/
+
+# Keystores and Secrets
+*.jks
+*.keystore
+local.properties
+key.properties
+.env
