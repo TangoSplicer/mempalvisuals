@@ -5,12 +5,14 @@ import '../features/graph/domain/repositories/i_graph_repository.dart';
 import '../features/graph/data/repositories/graph_repository_impl.dart';
 import '../features/palace/domain/repositories/i_palace_repository.dart';
 import '../features/palace/data/repositories/palace_repository_impl.dart';
+import '../features/timeline/domain/repositories/i_timeline_repository.dart';
+import '../features/timeline/data/repositories/timeline_repository_impl.dart';
 
 part 'providers.g.dart';
 
 @Riverpod(keepAlive: true)
 IMemPalaceAdapter memPalaceAdapter(MemPalaceAdapterRef ref) {
-  return MockMemPalaceAdapter(targetNodeCount: 1000);
+  return MockMemPalaceAdapter(targetNodeCount: 1000); 
 }
 
 @Riverpod(keepAlive: true)
@@ -23,4 +25,10 @@ IGraphRepository graphRepository(GraphRepositoryRef ref) {
 IPalaceRepository palaceRepository(PalaceRepositoryRef ref) {
   final adapter = ref.watch(memPalaceAdapterProvider);
   return PalaceRepositoryImpl(adapter);
+}
+
+@Riverpod(keepAlive: true)
+ITimelineRepository timelineRepository(TimelineRepositoryRef ref) {
+  final adapter = ref.watch(memPalaceAdapterProvider);
+  return TimelineRepositoryImpl(adapter);
 }

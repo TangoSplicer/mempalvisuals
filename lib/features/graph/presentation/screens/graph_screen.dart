@@ -19,7 +19,12 @@ class GraphScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.account_balance),
             onPressed: () => context.go('/palace'),
-            tooltip: 'Switch to Memory Palace',
+            tooltip: 'Memory Palace Builder',
+          ),
+          IconButton(
+            icon: const Icon(Icons.timeline),
+            onPressed: () => context.go('/timeline'),
+            tooltip: 'Timeline Explorer',
           ),
           if (graphState.hasValue)
             Padding(
@@ -42,8 +47,7 @@ class GraphScreen extends ConsumerWidget {
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text('Error loading graph: $error')),
+        error: (error, stack) => Center(child: Text('Error loading graph: $error')),
       ),
     );
   }
