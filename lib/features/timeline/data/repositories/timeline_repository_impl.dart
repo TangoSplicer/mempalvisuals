@@ -9,9 +9,11 @@ class TimelineRepositoryImpl implements ITimelineRepository {
   TimelineRepositoryImpl(this._adapter);
 
   @override
-  Future<List<TimelineEvent>> getEvents({int limit = 500, int offset = 0}) async {
+  Future<List<TimelineEvent>> getEvents(
+      {int limit = 500, int offset = 0}) async {
     try {
-      final rawEvents = await _adapter.fetchTimelineEvents(limit: limit, offset: offset);
+      final rawEvents =
+          await _adapter.fetchTimelineEvents(limit: limit, offset: offset);
       return rawEvents.map((json) => TimelineEvent.fromJson(json)).toList();
     } catch (e, stackTrace) {
       Log.e('Failed to fetch timeline events', e, stackTrace);

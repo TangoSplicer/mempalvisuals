@@ -12,7 +12,7 @@ part 'providers.g.dart';
 
 @Riverpod(keepAlive: true)
 IMemPalaceAdapter memPalaceAdapter(MemPalaceAdapterRef ref) {
-  return MockMemPalaceAdapter(targetNodeCount: 1000); 
+  return MockMemPalaceAdapter(targetNodeCount: 1000);
 }
 
 @Riverpod(keepAlive: true)

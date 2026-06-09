@@ -47,7 +47,8 @@ class GraphScreen extends ConsumerWidget {
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading graph: $error')),
+        error: (error, stack) =>
+            Center(child: Text('Error loading graph: $error')),
       ),
     );
   }

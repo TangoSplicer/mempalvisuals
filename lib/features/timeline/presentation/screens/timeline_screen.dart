@@ -27,7 +27,8 @@ class TimelineScreen extends ConsumerWidget {
 
           return ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 64.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 64.0),
             itemCount: events.length,
             itemBuilder: (context, index) {
               final event = events[index];
@@ -68,7 +69,9 @@ class TimelineScreen extends ConsumerWidget {
                         onPressed: () {
                           // Phase 6 context linking placeholder
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Focusing node: ${event.relatedNodeId}')),
+                            SnackBar(
+                                content: Text(
+                                    'Focusing node: ${event.relatedNodeId}')),
                           );
                         },
                         icon: const Icon(Icons.hub, size: 16),
@@ -82,7 +85,8 @@ class TimelineScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading timeline: $error')),
+        error: (error, stack) =>
+            Center(child: Text('Error loading timeline: $error')),
       ),
     );
   }
