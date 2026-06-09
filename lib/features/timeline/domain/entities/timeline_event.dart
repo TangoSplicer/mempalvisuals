@@ -13,5 +13,6 @@ class TimelineEvent with _$TimelineEvent {
     @Default('') String description,
   }) = _TimelineEvent;
 
-  factory TimelineEvent.fromJson(Map<String, dynamic> json) => _$TimelineEventFromJson(json);
+  factory TimelineEvent.fromJson(Map<String, dynamic> json) =>
+      _$TimelineEventFromJson(json);
 }
