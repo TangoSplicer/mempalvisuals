@@ -7,32 +7,33 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   final List<Map<String, dynamic>> _nodes = [];
   final List<Map<String, dynamic>> _edges = [];
   final List<Map<String, dynamic>> _palaces = [];
+  final List<Map<String, dynamic>> _timelineEvents = [];
   bool _isInitialized = false;
 
-  MockMemPalaceAdapter({int targetNodeCount = 50000})
-      : _targetNodeCount = targetNodeCount;
+  MockMemPalaceAdapter({int targetNodeCount = 50000}) : _targetNodeCount = targetNodeCount;
 
   @override
   Future<void> initialize() async {
     if (_isInitialized) return;
     Log.i('Initializing MockMemPalaceAdapter with $_targetNodeCount nodes...');
-
-    final random = Random(42);
-
+    
+    final random = Random(42); 
+    final now = DateTime.now();
+    
     // Generate Nodes
     for (int i = 0; i < _targetNodeCount; i++) {
       _nodes.add({
         'id': 'node_$i',
         'label': 'Memory Concept $i',
-        'tags': ['mock', 'concept', if (i % 5 == 0) 'important'],
-        'metadata': {'complexity': random.nextDouble()},
-        'createdAt': DateTime.now().toIso8601String(),
+        'tags': ['mock', 'concept'],
+        'metadata': {},
+        'createdAt': now.subtract(Duration(days: random.nextInt(365))).toIso8601String(),
       });
     }
 
     // Generate Edges
     for (int i = 1; i < _targetNodeCount; i++) {
-      int target = random.nextInt(i);
+      int target = random.nextInt(i); 
       _edges.add({
         'id': 'edge_$i',
         'sourceId': 'node_$i',
@@ -46,7 +47,7 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
     _palaces.add({
       'id': 'palace_1',
       'name': 'Primary Mind Palace',
-      'description': 'Main entry point for mapped memories.',
+      'description': 'Main entry point.',
       'rooms': [
         {
           'id': 'room_1',
@@ -55,15 +56,29 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
           'height': 2000.0,
           'placedNodes': [
             {'id': 'pn_1', 'nodeId': 'node_0', 'dx': 1000.0, 'dy': 1000.0},
-            {'id': 'pn_2', 'nodeId': 'node_1', 'dx': 1200.0, 'dy': 900.0},
           ]
         }
       ]
     });
 
+    // Generate Timeline Events
+    for (int i = 0; i < 100; i++) {
+      _timelineEvents.add({
+        'id': 'event_$i',
+        'title': 'Forensic Discovery $i',
+        'timestamp': now.subtract(Duration(days: random.nextInt(730))).toIso8601String(),
+        'relatedNodeId': 'node_${random.nextInt(100)}',
+        'description': 'Historical chronometer event logged during index creation.',
+      });
+    }
+
+    // Sort events chronologically
+    _timelineEvents.sort((a, b) => 
+      DateTime.parse(a['timestamp']).compareTo(DateTime.parse(b['timestamp']))
+    );
+
     _isInitialized = true;
-    Log.i(
-        'MockMemPalaceAdapter initialized. Nodes: ${_nodes.length}, Edges: ${_edges.length}');
+    Log.i('MockMemPalaceAdapter initialized. Events: ${_timelineEvents.length}');
   }
 
   @override
@@ -71,46 +86,35 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
     _nodes.clear();
     _edges.clear();
     _palaces.clear();
+    _timelineEvents.clear();
     _isInitialized = false;
-    Log.i('MockMemPalaceAdapter disposed.');
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchNodes(
-      {int limit = 1000, int offset = 0}) async {
-    if (offset >= _nodes.length) return [];
-    final end =
-        (offset + limit < _nodes.length) ? offset + limit : _nodes.length;
-    return _nodes.sublist(offset, end);
-  }
+  Future<List<Map<String, dynamic>>> fetchNodes({int limit = 1000, int offset = 0}) async => _paginate(_nodes, limit, offset);
 
   @override
-  Future<List<Map<String, dynamic>>> fetchEdges(
-      {int limit = 1000, int offset = 0}) async {
-    if (offset >= _edges.length) return [];
-    final end =
-        (offset + limit < _edges.length) ? offset + limit : _edges.length;
-    return _edges.sublist(offset, end);
-  }
+  Future<List<Map<String, dynamic>>> fetchEdges({int limit = 1000, int offset = 0}) async => _paginate(_edges, limit, offset);
 
   @override
-  Future<List<Map<String, dynamic>>> fetchPalaces() async {
-    return _palaces;
-  }
+  Future<List<Map<String, dynamic>>> fetchPalaces() async => _palaces;
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchTimelineEvents({int limit = 500, int offset = 0}) async => _paginate(_timelineEvents, limit, offset);
 
   @override
   Future<void> savePalace(Map<String, dynamic> palaceData) async {
     final index = _palaces.indexWhere((p) => p['id'] == palaceData['id']);
-    if (index >= 0) {
-      _palaces[index] = palaceData;
-    } else {
-      _palaces.add(palaceData);
-    }
-    Log.i('Palace saved: ${palaceData['name']}');
+    if (index >= 0) _palaces[index] = palaceData;
+    else _palaces.add(palaceData);
   }
 
   @override
-  Future<Map<String, dynamic>> executeQuery(String query) async {
-    return {'status': 'success', 'mocked': true, 'query': query};
+  Future<Map<String, dynamic>> executeQuery(String query) async => {'status': 'success'};
+
+  List<Map<String, dynamic>> _paginate(List<Map<String, dynamic>> list, int limit, int offset) {
+    if (offset >= list.length) return [];
+    final end = (offset + limit < list.length) ? offset + limit : list.length;
+    return list.sublist(offset, end);
   }
 }
