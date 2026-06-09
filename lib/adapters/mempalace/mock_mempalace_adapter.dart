@@ -10,16 +10,17 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   final List<Map<String, dynamic>> _timelineEvents = [];
   bool _isInitialized = false;
 
-  MockMemPalaceAdapter({int targetNodeCount = 50000}) : _targetNodeCount = targetNodeCount;
+  MockMemPalaceAdapter({int targetNodeCount = 50000})
+      : _targetNodeCount = targetNodeCount;
 
   @override
   Future<void> initialize() async {
     if (_isInitialized) return;
     Log.i('Initializing MockMemPalaceAdapter with $_targetNodeCount nodes...');
-    
-    final random = Random(42); 
+
+    final random = Random(42);
     final now = DateTime.now();
-    
+
     // Generate Nodes
     for (int i = 0; i < _targetNodeCount; i++) {
       _nodes.add({
@@ -27,13 +28,14 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
         'label': 'Memory Concept $i',
         'tags': ['mock', 'concept', if (i % 7 == 0) 'archived'],
         'metadata': {},
-        'createdAt': now.subtract(Duration(days: random.nextInt(365))).toIso8601String(),
+        'createdAt':
+            now.subtract(Duration(days: random.nextInt(365))).toIso8601String(),
       });
     }
 
     // Generate Edges
     for (int i = 1; i < _targetNodeCount; i++) {
-      int target = random.nextInt(i); 
+      int target = random.nextInt(i);
       _edges.add({
         'id': 'edge_$i',
         'sourceId': 'node_$i',
@@ -66,15 +68,16 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
       _timelineEvents.add({
         'id': 'event_$i',
         'title': 'Forensic Discovery $i',
-        'timestamp': now.subtract(Duration(days: random.nextInt(730))).toIso8601String(),
+        'timestamp':
+            now.subtract(Duration(days: random.nextInt(730))).toIso8601String(),
         'relatedNodeId': 'node_${random.nextInt(100)}',
-        'description': 'Historical chronometer event logged during index creation.',
+        'description':
+            'Historical chronometer event logged during index creation.',
       });
     }
 
-    _timelineEvents.sort((a, b) => 
-      DateTime.parse(a['timestamp']).compareTo(DateTime.parse(b['timestamp']))
-    );
+    _timelineEvents.sort((a, b) => DateTime.parse(a['timestamp'])
+        .compareTo(DateTime.parse(b['timestamp'])));
 
     _isInitialized = true;
     Log.i('MockMemPalaceAdapter initialized. Ready for Search.');
@@ -90,40 +93,55 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchNodes({int limit = 1000, int offset = 0}) async => _paginate(_nodes, limit, offset);
+  Future<List<Map<String, dynamic>>> fetchNodes(
+          {int limit = 1000, int offset = 0}) async =>
+      _paginate(_nodes, limit, offset);
 
   @override
-  Future<List<Map<String, dynamic>>> fetchEdges({int limit = 1000, int offset = 0}) async => _paginate(_edges, limit, offset);
+  Future<List<Map<String, dynamic>>> fetchEdges(
+          {int limit = 1000, int offset = 0}) async =>
+      _paginate(_edges, limit, offset);
 
   @override
   Future<List<Map<String, dynamic>>> fetchPalaces() async => _palaces;
 
   @override
-  Future<List<Map<String, dynamic>>> fetchTimelineEvents({int limit = 500, int offset = 0}) async => _paginate(_timelineEvents, limit, offset);
+  Future<List<Map<String, dynamic>>> fetchTimelineEvents(
+          {int limit = 500, int offset = 0}) async =>
+      _paginate(_timelineEvents, limit, offset);
 
   @override
   Future<void> savePalace(Map<String, dynamic> palaceData) async {
     final index = _palaces.indexWhere((p) => p['id'] == palaceData['id']);
-    if (index >= 0) _palaces[index] = palaceData;
-    else _palaces.add(palaceData);
+    if (index >= 0)
+      _palaces[index] = palaceData;
+    else
+      _palaces.add(palaceData);
   }
 
   @override
   Future<List<Map<String, dynamic>>> searchNodes(String query) async {
     if (query.trim().isEmpty) return [];
-    
+
     final lowerQuery = query.toLowerCase();
-    return _nodes.where((node) {
-      final labelMatch = (node['label'] as String).toLowerCase().contains(lowerQuery);
-      final tagsMatch = (node['tags'] as List).any((tag) => tag.toString().toLowerCase().contains(lowerQuery));
-      return labelMatch || tagsMatch;
-    }).take(50).toList(); // Hard cap results to prevent UI freezing
+    return _nodes
+        .where((node) {
+          final labelMatch =
+              (node['label'] as String).toLowerCase().contains(lowerQuery);
+          final tagsMatch = (node['tags'] as List)
+              .any((tag) => tag.toString().toLowerCase().contains(lowerQuery));
+          return labelMatch || tagsMatch;
+        })
+        .take(50)
+        .toList(); // Hard cap results to prevent UI freezing
   }
 
   @override
-  Future<Map<String, dynamic>> executeQuery(String query) async => {'status': 'success'};
+  Future<Map<String, dynamic>> executeQuery(String query) async =>
+      {'status': 'success'};
 
-  List<Map<String, dynamic>> _paginate(List<Map<String, dynamic>> list, int limit, int offset) {
+  List<Map<String, dynamic>> _paginate(
+      List<Map<String, dynamic>> list, int limit, int offset) {
     if (offset >= list.length) return [];
     final end = (offset + limit < list.length) ? offset + limit : list.length;
     return list.sublist(offset, end);

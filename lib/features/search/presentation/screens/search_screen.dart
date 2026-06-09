@@ -19,7 +19,8 @@ class SearchScreen extends ConsumerWidget {
             hintText: 'Search memories, tags, or concepts...',
             border: InputBorder.none,
           ),
-          onChanged: (val) => ref.read(searchQueryProvider.notifier).updateQuery(val),
+          onChanged: (val) =>
+              ref.read(searchQueryProvider.notifier).updateQuery(val),
         ),
         elevation: 0,
         actions: [
@@ -37,7 +38,12 @@ class SearchScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.search, size: 64, color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
+                  Icon(Icons.search,
+                      size: 64,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.5)),
                   const SizedBox(height: 16),
                   const Text('Begin typing to explore the knowledge graph.'),
                 ],
