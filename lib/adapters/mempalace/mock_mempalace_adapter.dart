@@ -6,6 +6,7 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   final int _targetNodeCount;
   final List<Map<String, dynamic>> _nodes = [];
   final List<Map<String, dynamic>> _edges = [];
+  final List<Map<String, dynamic>> _palaces = [];
   bool _isInitialized = false;
 
   MockMemPalaceAdapter({int targetNodeCount = 50000}) : _targetNodeCount = targetNodeCount;
@@ -15,7 +16,6 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
     if (_isInitialized) return;
     Log.i('Initializing MockMemPalaceAdapter with $_targetNodeCount nodes...');
     
-    // Deterministic seed ensures consistent graph layout for testing
     final random = Random(42); 
     
     // Generate Nodes
@@ -29,9 +29,9 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
       });
     }
 
-    // Generate Edges (Simulating natural clustering)
+    // Generate Edges
     for (int i = 1; i < _targetNodeCount; i++) {
-      int target = random.nextInt(i); // Connect to a previously created node
+      int target = random.nextInt(i); 
       _edges.add({
         'id': 'edge_$i',
         'sourceId': 'node_$i',
@@ -39,19 +39,26 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
         'relation': 'relates_to',
         'weight': random.nextDouble(),
       });
-      
-      // Add secondary links to create dense clusters
-      if (i % 10 == 0) {
-         int secondaryTarget = random.nextInt(i);
-         _edges.add({
-          'id': 'edge_${i}_sec',
-          'sourceId': 'node_$i',
-          'targetId': 'node_$secondaryTarget',
-          'relation': 'references',
-          'weight': random.nextDouble(),
-        });
-      }
     }
+
+    // Generate Default Palace
+    _palaces.add({
+      'id': 'palace_1',
+      'name': 'Primary Mind Palace',
+      'description': 'Main entry point for mapped memories.',
+      'rooms': [
+        {
+          'id': 'room_1',
+          'name': 'Foyer',
+          'width': 2000.0,
+          'height': 2000.0,
+          'placedNodes': [
+            {'id': 'pn_1', 'nodeId': 'node_0', 'dx': 1000.0, 'dy': 1000.0},
+            {'id': 'pn_2', 'nodeId': 'node_1', 'dx': 1200.0, 'dy': 900.0},
+          ]
+        }
+      ]
+    });
 
     _isInitialized = true;
     Log.i('MockMemPalaceAdapter initialized. Nodes: ${_nodes.length}, Edges: ${_edges.length}');
@@ -61,6 +68,7 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   Future<void> dispose() async {
     _nodes.clear();
     _edges.clear();
+    _palaces.clear();
     _isInitialized = false;
     Log.i('MockMemPalaceAdapter disposed.');
   }
@@ -80,8 +88,23 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchPalaces() async {
+    return _palaces;
+  }
+
+  @override
+  Future<void> savePalace(Map<String, dynamic> palaceData) async {
+    final index = _palaces.indexWhere((p) => p['id'] == palaceData['id']);
+    if (index >= 0) {
+      _palaces[index] = palaceData;
+    } else {
+      _palaces.add(palaceData);
+    }
+    Log.i('Palace saved: ${palaceData['name']}');
+  }
+
+  @override
   Future<Map<String, dynamic>> executeQuery(String query) async {
-     Log.d('Mock executing query: $query');
      return {'status': 'success', 'mocked': true, 'query': query};
   }
 }

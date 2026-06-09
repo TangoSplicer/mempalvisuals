@@ -1,4 +1,4 @@
-name: MemPalace CI Validation
+name: MemPalace CI Validation & Generation
 
 on:
   push:
@@ -7,23 +7,36 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  validate:
-    name: Lint, Format, and Test
+  build_and_validate:
+    name: Generate, Lint, and Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push generated files back to the repo
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0' # Target stable
+          flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Commit generated files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-generate freezed and riverpod boilerplate [skip ci]"
+          file_pattern: "**/*.g.dart **/*.freezed.dart"
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
