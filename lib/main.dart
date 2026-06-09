@@ -6,9 +6,9 @@ import 'core/routing/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final container = ProviderContainer();
-  
+
   final adapter = container.read(memPalaceAdapterProvider);
   await adapter.initialize();
   Log.i('Core Adapter Initialized successfully.');
@@ -28,7 +28,8 @@ class MemPalaceApp extends StatelessWidget {
       title: 'MemPalace',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple, brightness: Brightness.dark),
       ),
       routerConfig: appRouter,
     );

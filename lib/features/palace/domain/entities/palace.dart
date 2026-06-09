@@ -37,5 +37,6 @@ class PlacedNode with _$PlacedNode {
     required double dy,
   }) = _PlacedNode;
 
-  factory PlacedNode.fromJson(Map<String, dynamic> json) => _$PlacedNodeFromJson(json);
+  factory PlacedNode.fromJson(Map<String, dynamic> json) =>
+      _$PlacedNodeFromJson(json);
 }

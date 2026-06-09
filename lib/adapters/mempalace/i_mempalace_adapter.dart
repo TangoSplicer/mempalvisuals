@@ -8,11 +8,13 @@ abstract interface class IMemPalaceAdapter {
   Future<void> dispose();
 
   /// Retrieves a paginated list of nodes.
-  Future<List<Map<String, dynamic>>> fetchNodes({int limit = 1000, int offset = 0});
+  Future<List<Map<String, dynamic>>> fetchNodes(
+      {int limit = 1000, int offset = 0});
 
   /// Retrieves a paginated list of edges.
-  Future<List<Map<String, dynamic>>> fetchEdges({int limit = 1000, int offset = 0});
-  
+  Future<List<Map<String, dynamic>>> fetchEdges(
+      {int limit = 1000, int offset = 0});
+
   /// Retrieves all configured Memory Palaces.
   Future<List<Map<String, dynamic>>> fetchPalaces();
 

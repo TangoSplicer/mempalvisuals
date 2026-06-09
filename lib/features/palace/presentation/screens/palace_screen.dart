@@ -28,27 +28,28 @@ class PalaceScreen extends ConsumerWidget {
           if (palaces.isEmpty) {
             return const Center(child: Text('No Memory Palaces constructed.'));
           }
-          
+
           final defaultPalace = palaces.first;
           if (defaultPalace.rooms.isEmpty) {
             return const Center(child: Text('This palace has no rooms.'));
           }
-          
+
           final defaultRoom = defaultPalace.rooms.first;
 
           return PalaceCanvas(
             room: defaultRoom,
             onNodeMoved: (updatedNode) {
               ref.read(palaceStateProvider.notifier).updateNodePosition(
-                defaultPalace.id,
-                defaultRoom.id,
-                updatedNode,
-              );
+                    defaultPalace.id,
+                    defaultRoom.id,
+                    updatedNode,
+                  );
             },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading palace: $error')),
+        error: (error, stack) =>
+            Center(child: Text('Error loading palace: $error')),
       ),
     );
   }

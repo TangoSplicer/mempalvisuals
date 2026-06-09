@@ -12,9 +12,10 @@ class PalaceState extends _$PalaceState {
     return await repository.getPalaces();
   }
 
-  Future<void> updateNodePosition(String palaceId, String roomId, PlacedNode updatedNode) async {
+  Future<void> updateNodePosition(
+      String palaceId, String roomId, PlacedNode updatedNode) async {
     if (state.value == null) return;
-    
+
     final currentPalaces = List<Palace>.from(state.value!);
     final palaceIndex = currentPalaces.indexWhere((p) => p.id == palaceId);
     if (palaceIndex == -1) return;
@@ -24,7 +25,8 @@ class PalaceState extends _$PalaceState {
     if (roomIndex == -1) return;
 
     final room = palace.rooms[roomIndex];
-    final nodeIndex = room.placedNodes.indexWhere((n) => n.id == updatedNode.id);
+    final nodeIndex =
+        room.placedNodes.indexWhere((n) => n.id == updatedNode.id);
     if (nodeIndex == -1) return;
 
     // Immutable state update

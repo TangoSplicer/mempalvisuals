@@ -12,7 +12,7 @@ class GraphState extends _$GraphState {
   @override
   FutureOr<GraphData> build() async {
     final repository = ref.watch(graphRepositoryProvider);
-    
+
     // Fetching initial batch concurrently
     final results = await Future.wait([
       repository.getNodes(limit: 1000, offset: 0),

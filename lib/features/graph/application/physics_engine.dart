@@ -6,7 +6,7 @@ import '../domain/entities/edge.dart';
 class PhysicsEngine {
   final List<Node> nodes;
   final List<Edge> edges;
-  
+
   final Map<String, Offset> positions = {};
   final Map<String, Offset> velocities = {};
 
@@ -17,7 +17,7 @@ class PhysicsEngine {
   final double springStiffness = 0.05;
   final double gravityConstant = 0.02;
   final double damping = 0.85;
-  
+
   final Size canvasSize;
   final Offset center;
 
@@ -52,17 +52,18 @@ class PhysicsEngine {
       for (int j = i + 1; j < nodes.length; j++) {
         final idA = nodes[i].id;
         final idB = nodes[j].id;
-        
+
         final posA = positions[idA]!;
         final posB = positions[idB]!;
-        
+
         final delta = posA - posB;
         final distanceSq = delta.distanceSquared;
-        
-        if (distanceSq > 0 && distanceSq < 40000) { // Limit repulsion radius for performance
+
+        if (distanceSq > 0 && distanceSq < 40000) {
+          // Limit repulsion radius for performance
           final forceMag = repulsionConstant / distanceSq;
           final force = (delta / sqrt(distanceSq)) * forceMag;
-          
+
           forces[idA] = forces[idA]! + force;
           forces[idB] = forces[idB]! - force;
         }
@@ -73,16 +74,16 @@ class PhysicsEngine {
     for (final edge in edges) {
       final posA = positions[edge.sourceId];
       final posB = positions[edge.targetId];
-      
+
       if (posA != null && posB != null) {
         final delta = posB - posA;
         final distance = delta.distance;
-        
+
         if (distance > 0) {
           final displacement = distance - springLength;
           final forceMag = displacement * springStiffness * edge.weight;
           final force = (delta / distance) * forceMag;
-          
+
           forces[edge.sourceId] = forces[edge.sourceId]! + force;
           forces[edge.targetId] = forces[edge.targetId]! - force;
         }
@@ -93,19 +94,19 @@ class PhysicsEngine {
     for (final node in nodes) {
       final id = node.id;
       final currentPos = positions[id]!;
-      
+
       // Gravity pulling toward the center of the canvas
       final gravityDelta = center - currentPos;
       final gravityForce = gravityDelta * gravityConstant;
-      
+
       var currentForce = forces[id]! + gravityForce;
       var newVelocity = (velocities[id]! + currentForce) * damping;
-      
+
       // Clamp velocity to prevent physics explosions
       if (newVelocity.distance > maxVelocity) {
         newVelocity = (newVelocity / newVelocity.distance) * maxVelocity;
       }
-      
+
       velocities[id] = newVelocity;
       positions[id] = currentPos + newVelocity;
     }

@@ -16,7 +16,8 @@ class PalaceCanvas extends StatefulWidget {
 }
 
 class _PalaceCanvasState extends State<PalaceCanvas> {
-  final TransformationController _transformationController = TransformationController();
+  final TransformationController _transformationController =
+      TransformationController();
 
   @override
   void dispose() {
@@ -57,7 +58,7 @@ class _PalaceCanvasState extends State<PalaceCanvas> {
                   // Calculate local position relative to the canvas
                   final renderBox = context.findRenderObject() as RenderBox;
                   final localPosition = renderBox.globalToLocal(details.offset);
-                  
+
                   final updatedNode = placedNode.copyWith(
                     dx: localPosition.dx,
                     dy: localPosition.dy,

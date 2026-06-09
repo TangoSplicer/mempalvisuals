@@ -9,15 +9,16 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   final List<Map<String, dynamic>> _palaces = [];
   bool _isInitialized = false;
 
-  MockMemPalaceAdapter({int targetNodeCount = 50000}) : _targetNodeCount = targetNodeCount;
+  MockMemPalaceAdapter({int targetNodeCount = 50000})
+      : _targetNodeCount = targetNodeCount;
 
   @override
   Future<void> initialize() async {
     if (_isInitialized) return;
     Log.i('Initializing MockMemPalaceAdapter with $_targetNodeCount nodes...');
-    
-    final random = Random(42); 
-    
+
+    final random = Random(42);
+
     // Generate Nodes
     for (int i = 0; i < _targetNodeCount; i++) {
       _nodes.add({
@@ -31,7 +32,7 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
 
     // Generate Edges
     for (int i = 1; i < _targetNodeCount; i++) {
-      int target = random.nextInt(i); 
+      int target = random.nextInt(i);
       _edges.add({
         'id': 'edge_$i',
         'sourceId': 'node_$i',
@@ -61,7 +62,8 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
     });
 
     _isInitialized = true;
-    Log.i('MockMemPalaceAdapter initialized. Nodes: ${_nodes.length}, Edges: ${_edges.length}');
+    Log.i(
+        'MockMemPalaceAdapter initialized. Nodes: ${_nodes.length}, Edges: ${_edges.length}');
   }
 
   @override
@@ -74,16 +76,20 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchNodes({int limit = 1000, int offset = 0}) async {
+  Future<List<Map<String, dynamic>>> fetchNodes(
+      {int limit = 1000, int offset = 0}) async {
     if (offset >= _nodes.length) return [];
-    final end = (offset + limit < _nodes.length) ? offset + limit : _nodes.length;
+    final end =
+        (offset + limit < _nodes.length) ? offset + limit : _nodes.length;
     return _nodes.sublist(offset, end);
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchEdges({int limit = 1000, int offset = 0}) async {
+  Future<List<Map<String, dynamic>>> fetchEdges(
+      {int limit = 1000, int offset = 0}) async {
     if (offset >= _edges.length) return [];
-    final end = (offset + limit < _edges.length) ? offset + limit : _edges.length;
+    final end =
+        (offset + limit < _edges.length) ? offset + limit : _edges.length;
     return _edges.sublist(offset, end);
   }
 
@@ -105,6 +111,6 @@ class MockMemPalaceAdapter implements IMemPalaceAdapter {
 
   @override
   Future<Map<String, dynamic>> executeQuery(String query) async {
-     return {'status': 'success', 'mocked': true, 'query': query};
+    return {'status': 'success', 'mocked': true, 'query': query};
   }
 }
