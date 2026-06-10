@@ -1,12 +1,17 @@
 import 'package:go_router/go_router.dart';
+import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/graph/presentation/screens/graph_screen.dart';
 import '../../features/palace/presentation/screens/palace_screen.dart';
 import '../../features/timeline/presentation/screens/timeline_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/graph',
+  initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const DashboardScreen(),
+    ),
     GoRoute(
       path: '/graph',
       builder: (context, state) => const GraphScreen(),
