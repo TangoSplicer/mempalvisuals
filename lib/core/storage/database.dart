@@ -8,7 +8,7 @@ class Nodes extends Table {
   TextColumn get label => text()();
   TextColumn get tags => text()();
   DateTimeColumn get createdAt => dateTime()();
-  
+
   @override
   Set<Column> get primaryKey => {id};
 }
