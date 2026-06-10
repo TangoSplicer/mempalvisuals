@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../adapters/mempalace/i_mempalace_adapter.dart';
-import '../adapters/mempalace/mock_mempalace_adapter.dart';
+import '../adapters/mempalace/drift_mempalace_adapter.dart';
+import '../core/storage/database.dart';
 import '../features/graph/domain/repositories/i_graph_repository.dart';
 import '../features/graph/data/repositories/graph_repository_impl.dart';
 import '../features/palace/domain/repositories/i_palace_repository.dart';
@@ -14,7 +15,8 @@ part 'providers.g.dart';
 
 @Riverpod(keepAlive: true)
 IMemPalaceAdapter memPalaceAdapter(MemPalaceAdapterRef ref) {
-  return MockMemPalaceAdapter(targetNodeCount: 1000);
+  final db = AppDatabase();
+  return DriftMemPalaceAdapter(db);
 }
 
 @Riverpod(keepAlive: true)
