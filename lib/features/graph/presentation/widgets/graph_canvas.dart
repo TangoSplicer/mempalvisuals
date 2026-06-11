@@ -13,22 +13,28 @@ class GraphCanvas extends StatefulWidget {
   State<GraphCanvas> createState() => _GraphCanvasState();
 }
 
-class _GraphCanvasState extends State<GraphCanvas> with SingleTickerProviderStateMixin {
-  final TransformationController _transformationController = TransformationController();
+class _GraphCanvasState extends State<GraphCanvas>
+    with SingleTickerProviderStateMixin {
+  final TransformationController _transformationController =
+      TransformationController();
   late AnimationController _physicsTicker;
   late PhysicsEngine _engine;
-  
+
   final Size _virtualCanvasSize = const Size(10000, 10000);
 
   @override
   void initState() {
     super.initState();
-    _engine = PhysicsEngine(nodes: widget.nodes, edges: widget.edges, canvasSize: _virtualCanvasSize);
-    _physicsTicker = AnimationController(vsync: this, duration: const Duration(days: 365))
-      ..addListener(() {
-        _engine.tick();
-        setState(() {});
-      });
+    _engine = PhysicsEngine(
+        nodes: widget.nodes,
+        edges: widget.edges,
+        canvasSize: _virtualCanvasSize);
+    _physicsTicker =
+        AnimationController(vsync: this, duration: const Duration(days: 365))
+          ..addListener(() {
+            _engine.tick();
+            setState(() {});
+          });
     _physicsTicker.forward();
   }
 
@@ -48,10 +54,10 @@ class _GraphCanvasState extends State<GraphCanvas> with SingleTickerProviderStat
       minScale: 0.05,
       maxScale: 10.0,
       child: CustomPaint(
-        size: _virtualCanvasSize, 
+        size: _virtualCanvasSize,
         painter: _VirtualizingGraphPainter(
-          widget.nodes, 
-          widget.edges, 
+          widget.nodes,
+          widget.edges,
           _engine.positions,
           _transformationController,
         ),
@@ -66,7 +72,8 @@ class _VirtualizingGraphPainter extends CustomPainter {
   final Map<String, Offset> positions;
   final TransformationController controller;
 
-  _VirtualizingGraphPainter(this.nodes, this.edges, this.positions, this.controller);
+  _VirtualizingGraphPainter(
+      this.nodes, this.edges, this.positions, this.controller);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -79,7 +86,9 @@ class _VirtualizingGraphPainter extends CustomPainter {
     );
 
     final nodePaint = Paint()..color = Colors.deepPurpleAccent;
-    final edgePaint = Paint()..color = Colors.grey.withOpacity(0.3)..strokeWidth = 1.0;
+    final edgePaint = Paint()
+      ..color = Colors.grey.withOpacity(0.3)
+      ..strokeWidth = 1.0;
 
     for (final node in nodes) {
       final pos = positions[node.id];
