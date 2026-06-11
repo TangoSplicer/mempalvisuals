@@ -19,7 +19,7 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
   logger: ^2.3.0
-  material_color_utilities: ^0.11.1
+  material_color_utilities: ^0.13.0
 
 dev_dependencies:
   flutter_test:
