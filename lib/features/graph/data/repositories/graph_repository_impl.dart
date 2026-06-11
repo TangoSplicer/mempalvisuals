@@ -1,4 +1,4 @@
-import '../../../core/logging/logger.dart';
+import '../../../../core/logging/logger.dart';
 import '../../../../adapters/mempalace/i_mempalace_adapter.dart';
 import '../../domain/entities/node.dart';
 import '../../domain/entities/edge.dart';

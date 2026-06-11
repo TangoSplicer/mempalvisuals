@@ -15,7 +15,7 @@ class SearchRepositoryImpl implements ISearchRepository {
       return rawResults.map((json) => Node.fromJson(json)).toList();
     } catch (e, stackTrace) {
       Log.e('Failed to execute search for query: $query', e, stackTrace);
-      return []; // Return empty gracefully on failure
+      return []; 
     }
   }
 }

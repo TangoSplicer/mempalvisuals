@@ -32,6 +32,10 @@ jobs:
       - name: Scaffold Native Platform Wrappers
         run: flutter create --platforms=android,web,linux .
 
+      - name: Patch Android SDK Version
+        run: |
+          sed -i 's/flutter.compileSdkVersion/35/g' android/app/build.gradle
+
       - name: Install Project Dependencies
         run: flutter pub get
 
