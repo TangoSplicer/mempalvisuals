@@ -26,9 +26,14 @@ jobs:
       - name: Scaffold Native Wrappers
         run: |
           flutter create --platforms=android,web,linux,windows,macos .
-          until [ -f android/app/build.gradle ]; do sleep 1; done
-          sed -i 's/flutter.compileSdkVersion/35/g' android/app/build.gradle
-          sed -i 's/compileSdk = [0-9]*/compileSdk = 35/g' android/app/build.gradle
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/flutter.compileSdkVersion/35/g' android/app/build.gradle.kts
+            sed -i 's/compileSdk = [0-9]*/compileSdk = 35/g' android/app/build.gradle.kts
+          fi
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/flutter.compileSdkVersion/35/g' android/app/build.gradle
+            sed -i 's/compileSdk = [0-9]*/compileSdk = 35/g' android/app/build.gradle
+          fi
 
       - name: Install dependencies
         run: flutter pub get
