@@ -19,17 +19,18 @@ class HomeScreen extends StatelessWidget {
               icon: const Icon(Icons.add_comment),
               label: const Text('Capture New Thought'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 backgroundColor: Colors.deepPurpleAccent,
                 foregroundColor: Colors.white,
               ),
-              onPressed: () => context.push('/capture'), 
+              onPressed: () => context.push('/capture'),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               icon: const Icon(Icons.hub),
               label: const Text('Enter Memory Graph'),
-              onPressed: () => context.push('/graph'), 
+              onPressed: () => context.push('/graph'),
             ),
           ],
         ),

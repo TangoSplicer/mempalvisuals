@@ -32,9 +32,11 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
       _isProcessing = false;
       if (rawJsonMap != null) {
         // Pretty-print the JSON so you can inspect the nodes and edges
-        _structuredOutput = const JsonEncoder.withIndent('  ').convert(rawJsonMap);
+        _structuredOutput =
+            const JsonEncoder.withIndent('  ').convert(rawJsonMap);
       } else {
-        _structuredOutput = 'Error: Failed to extract data. Check your API key and connection.';
+        _structuredOutput =
+            'Error: Failed to extract data. Check your API key and connection.';
       }
     });
   }
@@ -67,13 +69,18 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _isProcessing ? null : _extractKnowledge,
-              icon: _isProcessing 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+              icon: _isProcessing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.auto_awesome),
-              label: Text(_isProcessing ? 'Extracting...' : 'Structure Thought'),
+              label:
+                  Text(_isProcessing ? 'Extracting...' : 'Structure Thought'),
             ),
             const SizedBox(height: 24),
-            const Text('LLM Output:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('LLM Output:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Expanded(
               child: Container(
@@ -84,8 +91,11 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                 ),
                 child: SingleChildScrollView(
                   child: Text(
-                    _structuredOutput.isEmpty ? 'Waiting for input...' : _structuredOutput,
-                    style: const TextStyle(color: Colors.greenAccent, fontFamily: 'monospace'),
+                    _structuredOutput.isEmpty
+                        ? 'Waiting for input...'
+                        : _structuredOutput,
+                    style: const TextStyle(
+                        color: Colors.greenAccent, fontFamily: 'monospace'),
                   ),
                 ),
               ),

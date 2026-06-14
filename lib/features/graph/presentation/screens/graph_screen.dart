@@ -19,7 +19,7 @@ class GraphScreen extends ConsumerWidget {
           onPressed: () {
             // Safely pops the software/hardware back button
             if (context.canPop()) {
-              context.pop(); 
+              context.pop();
             } else {
               context.go('/');
             }
@@ -35,7 +35,7 @@ class GraphScreen extends ConsumerWidget {
       ),
       body: const SafeArea(
         // Note: Restore your data.nodes and data.edges here
-        child: GraphCanvas(nodes: [], edges: []), 
+        child: GraphCanvas(nodes: [], edges: []),
       ),
     );
   }

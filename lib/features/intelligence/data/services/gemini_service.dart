@@ -4,9 +4,10 @@ import '../../../core/config/env.dart';
 
 class GeminiService {
   final Dio _dio;
-  
+
   // Hardcoded to gemini-1.5-flash for maximum speed
-  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  final String _endpoint =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -35,8 +36,8 @@ Do not include markdown formatting, backticks, or any conversational text.
         }
       ],
       "generationConfig": {
-        "temperature": 0.1, 
-        "responseMimeType": "application/json" 
+        "temperature": 0.1,
+        "responseMimeType": "application/json"
       }
     };
 
@@ -50,7 +51,8 @@ Do not include markdown formatting, backticks, or any conversational text.
       );
 
       if (response.statusCode == 200) {
-        final textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
+        final textResponse =
+            response.data['candidates'][0]['content']['parts'][0]['text'];
         // Decode the pure JSON string into a Dart Map
         return jsonDecode(textResponse);
       } else {
