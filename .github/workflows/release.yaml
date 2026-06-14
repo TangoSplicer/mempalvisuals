@@ -10,8 +10,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build_ubuntu_targets:
-    name: Build Android, Web, and Linux
+  build_all:
+    name: Build All Targets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,118 +23,39 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Install Linux dependencies
+      - name: Scaffold Native Wrappers
+        run: |
+          flutter create --platforms=android,web,linux,windows,macos .
+          until [ -f android/app/build.gradle ]; do sleep 1; done
+          sed -i 's/flutter.compileSdkVersion/35/g' android/app/build.gradle
+          sed -i 's/compileSdk = [0-9]*/compileSdk = 35/g' android/app/build.gradle
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Android
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - name: Build Web
+        run: flutter build web --release
+
+      - name: Build Linux
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev
+          flutter build linux --release
 
-      - name: Scaffold Native Platform Wrappers
-        run: flutter create --platforms=android,web,linux .
-
-      - name: Patch Android SDK Version
-        run: |
-          sed -i 's/flutter.compileSdkVersion/35/g' android/app/build.gradle
-
-      - name: Install Project Dependencies
-        run: flutter pub get
-
-      - name: Run code generation
-        run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Build Android APK
-        run: flutter build apk --release
-
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
-
-      - name: Build Web PWA
-        run: flutter build web --release
-
-      - name: Build Linux Desktop
-        run: flutter build linux --release
-
-      - name: Upload Android APK
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mempalace-android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Upload Android AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: mempalace-android-aab
-          path: build/app/outputs/bundle/release/app-release.aab
-
-      - name: Upload Web Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: mempalace-web
-          path: build/web/
-
-      - name: Upload Linux Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: mempalace-linux
-          path: build/linux/x64/release/bundle/
-
-  build_windows:
-    name: Build Windows Desktop
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Scaffold Native Platform Wrappers
-        run: flutter create --platforms=windows .
-
-      - name: Install Project Dependencies
-        run: flutter pub get
-
-      - name: Run code generation
-        run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Build Windows Desktop
-        run: flutter build windows --release
-
-      - name: Upload Windows Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: mempalace-windows
-          path: build\windows\x64\runner\Release\
-
-  build_macos:
-    name: Build macOS Desktop
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Scaffold Native Platform Wrappers
-        run: flutter create --platforms=macos .
-
-      - name: Install Project Dependencies
-        run: flutter pub get
-
-      - name: Run code generation
-        run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Build macOS Desktop
-        run: flutter build macos --release
-
-      - name: Upload macOS Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: mempalace-macos
-          path: build/macos/Build/Products/Release/mempalace_ui.app/
+          name: mempalace-production-builds
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/web/
+            build/linux/x64/release/bundle/
