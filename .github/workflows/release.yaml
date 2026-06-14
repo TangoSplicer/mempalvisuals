@@ -43,17 +43,17 @@ jobs:
 
       - name: Build Android
         run: |
-          flutter build apk --release
-          flutter build appbundle --release
+          flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          flutter build appbundle --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - name: Build Web
-        run: flutter build web --release
+        run: flutter build web --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - name: Build Linux
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev
-          flutter build linux --release
+          flutter build linux --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
