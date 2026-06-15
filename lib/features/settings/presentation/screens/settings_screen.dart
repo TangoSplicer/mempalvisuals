@@ -31,7 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _isSaved = true;
     });
-    
+
     // Reset the success message after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _isSaved = false);
@@ -58,7 +58,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               decoration: const InputDecoration(
                 labelText: 'Gemini API Key',
                 border: OutlineInputBorder(),
-                helperText: 'Your key is stored locally and never transmitted to our servers.',
+                helperText:
+                    'Your key is stored locally and never transmitted to our servers.',
               ),
             ),
             const SizedBox(height: 16),
