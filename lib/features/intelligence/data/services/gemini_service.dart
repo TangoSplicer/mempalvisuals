@@ -1,19 +1,19 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import '../../../../core/config/env.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-
-  // Hardcoded to gemini-1.5-flash for maximum speed
-  final String _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
   Future<Map<String, dynamic>?> extractGraphData(String userInput) async {
-    if (Env.geminiApiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY is not set in the environment.');
+    final prefs = await SharedPreferences.getInstance();
+    final apiKey = prefs.getString('gemini_api_key') ?? '';
+
+    if (apiKey.isEmpty) {
+      throw Exception('API Key is missing. Please configure it in Settings.');
     }
 
     final systemPrompt = '''
@@ -27,33 +27,19 @@ Do not include markdown formatting, backticks, or any conversational text.
 ''';
 
     final payload = {
-      "contents": [
-        {
-          "parts": [
-            {"text": systemPrompt},
-            {"text": "User Input: $userInput"}
-          ]
-        }
-      ],
-      "generationConfig": {
-        "temperature": 0.1,
-        "responseMimeType": "application/json"
-      }
+      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
+      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
     };
 
     try {
       final response = await _dio.post(
-        '$_endpoint?key=${Env.geminiApiKey}',
+        '$_endpoint?key=$apiKey',
         data: payload,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
       if (response.statusCode == 200) {
-        final textResponse =
-            response.data['candidates'][0]['content']['parts'][0]['text'];
-        // Decode the pure JSON string into a Dart Map
+        final textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
         return jsonDecode(textResponse);
       } else {
         throw Exception('Failed to connect to Gemini: ${response.statusCode}');
