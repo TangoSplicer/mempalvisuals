@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import '../../../core/config/env.dart';
+import '../../../../core/config/env.dart';
 
 class GeminiService {
   final Dio _dio;
