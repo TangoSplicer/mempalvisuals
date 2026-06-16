@@ -100,7 +100,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 label,
-                textAlign: .TextAlign.center,
+                textAlign: TextAlign.center,
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ],
