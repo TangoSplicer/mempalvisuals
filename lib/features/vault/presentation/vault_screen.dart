@@ -12,16 +12,20 @@ class VaultScreen extends ConsumerWidget {
     final repo = ref.read(palaceRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Memory Vault')),
+      appBar: AppBar(
+        title: const Text('Memory Vault'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: FutureBuilder<List<Palace>>(
         future: repo.getAllPalaces(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final palaces = snapshot.data!;
-          if (palaces.isEmpty)
-            return const Center(child: Text('Vault is empty.'));
-
+          if (palaces.isEmpty) return const Center(child: Text('Vault is empty. Tap + to begin.'));
+          
           return ListView.builder(
             itemCount: palaces.length,
             itemBuilder: (context, index) {
@@ -33,13 +37,18 @@ class VaultScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => PalaceScreen(existingPalaceId: p.id)),
+                  MaterialPageRoute(builder: (_) => PalaceScreen(existingPalaceId: p.id)),
                 ),
               );
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PalaceScreen())),
+        icon: const Icon(Icons.add),
+        label: const Text('New Room'),
+        backgroundColor: Colors.indigo,
       ),
     );
   }

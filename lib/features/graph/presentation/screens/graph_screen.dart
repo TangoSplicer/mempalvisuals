@@ -11,6 +11,7 @@ class GraphScreen extends ConsumerWidget {
     final repo = ref.read(palaceRepositoryProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Knowledge Graph')),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
       body: FutureBuilder(
         future: Future.wait([repo.getAllNodes(), repo.getAllEdges()]),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
