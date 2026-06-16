@@ -4,8 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-  final String _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -28,18 +27,8 @@ Do not include markdown formatting, backticks, or any conversational text.
 ''';
 
     final payload = {
-      "contents": [
-        {
-          "parts": [
-            {"text": systemPrompt},
-            {"text": "User Input: $userInput"}
-          ]
-        }
-      ],
-      "generationConfig": {
-        "temperature": 0.1,
-        "responseMimeType": "application/json"
-      }
+      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
+      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
     };
 
     try {
@@ -50,15 +39,21 @@ Do not include markdown formatting, backticks, or any conversational text.
       );
 
       if (response.statusCode == 200) {
-        final textResponse =
-            response.data['candidates'][0]['content']['parts'][0]['text'];
+        String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
+        
+        // CRITICAL FIX: Strip markdown code blocks if the LLM disobeys formatting instructions
+        textResponse = textResponse.replaceAll(RegExp(r'```json\n?'), '').replaceAll(RegExp(r'```\n?'), '').trim();
+        
         return jsonDecode(textResponse);
       } else {
-        throw Exception('Failed to connect to Gemini: ${response.statusCode}');
+        throw Exception('API returned ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      // Expose the actual network error from Google
+      throw Exception('Network Error: ${e.response?.data ?? e.message}');
     } catch (e) {
-      print('Gemini API Error: $e');
-      return null;
+      // Expose JSON parsing errors
+      throw Exception('Parsing Error: $e');
     }
   }
 }
