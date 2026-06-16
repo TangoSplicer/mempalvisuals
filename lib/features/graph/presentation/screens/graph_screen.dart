@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import '../../../database/data/palace_repository.dart';
 import '../widgets/graph_canvas.dart';
 
 class GraphScreen extends ConsumerWidget {
@@ -8,34 +8,15 @@ class GraphScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Note: Restore your specific Riverpod data watch here
-    // final data = ref.watch(yourGraphProvider);
-
+    final repo = ref.read(palaceRepositoryProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Memory Graph'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Safely pops the software/hardware back button
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/');
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: 'Return to Home',
-            onPressed: () => context.go('/'), // Clears stack and goes home
-          ),
-        ],
-      ),
-      body: const SafeArea(
-        // Note: Restore your data.nodes and data.edges here
-        child: GraphCanvas(nodes: [], edges: []),
+      appBar: AppBar(title: const Text('Knowledge Graph')),
+      body: FutureBuilder(
+        future: Future.wait([repo.getAllNodes(), repo.getAllEdges()]),
+        builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          return GraphCanvas(nodes: snapshot.data![0], edges: snapshot.data![1]);
+        },
       ),
     );
   }

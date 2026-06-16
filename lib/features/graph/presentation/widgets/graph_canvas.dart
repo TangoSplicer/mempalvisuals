@@ -1,103 +1,57 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../domain/entities/node.dart';
-import '../../domain/entities/edge.dart';
-import '../../application/physics_engine.dart';
+import '../../../database/data/database.dart';
 
-class GraphCanvas extends StatefulWidget {
+class GraphCanvas extends StatelessWidget {
   final List<Node> nodes;
   final List<Edge> edges;
-
   const GraphCanvas({super.key, required this.nodes, required this.edges});
 
   @override
-  State<GraphCanvas> createState() => _GraphCanvasState();
-}
-
-class _GraphCanvasState extends State<GraphCanvas>
-    with SingleTickerProviderStateMixin {
-  final TransformationController _transformationController =
-      TransformationController();
-  late AnimationController _physicsTicker;
-  late PhysicsEngine _engine;
-
-  final Size _virtualCanvasSize = const Size(10000, 10000);
-
-  @override
-  void initState() {
-    super.initState();
-    _engine = PhysicsEngine(
-        nodes: widget.nodes,
-        edges: widget.edges,
-        canvasSize: _virtualCanvasSize);
-    _physicsTicker =
-        AnimationController(vsync: this, duration: const Duration(days: 365))
-          ..addListener(() {
-            _engine.tick();
-            setState(() {});
-          });
-    _physicsTicker.forward();
-  }
-
-  @override
-  void dispose() {
-    _physicsTicker.dispose();
-    _transformationController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(
-      transformationController: _transformationController,
-      constrained: false,
-      boundaryMargin: const EdgeInsets.all(double.infinity),
-      minScale: 0.05,
-      maxScale: 10.0,
-      child: CustomPaint(
-        size: _virtualCanvasSize,
-        painter: _VirtualizingGraphPainter(
-          widget.nodes,
-          widget.edges,
-          _engine.positions,
-          _transformationController,
-        ),
-      ),
+    return CustomPaint(
+      painter: _GraphPainter(nodes, edges),
+      child: Container(),
     );
   }
 }
 
-class _VirtualizingGraphPainter extends CustomPainter {
+class _GraphPainter extends CustomPainter {
   final List<Node> nodes;
   final List<Edge> edges;
-  final Map<String, Offset> positions;
-  final TransformationController controller;
-
-  _VirtualizingGraphPainter(
-      this.nodes, this.edges, this.positions, this.controller);
+  _GraphPainter(this.nodes, this.edges);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final matrix = controller.value;
-    final viewport = Rect.fromLTWH(
-      -matrix.getTranslation().x / matrix.getMaxScaleOnAxis(),
-      -matrix.getTranslation().y / matrix.getMaxScaleOnAxis(),
-      size.width / matrix.getMaxScaleOnAxis(),
-      size.height / matrix.getMaxScaleOnAxis(),
-    );
+    if (nodes.isEmpty) return;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width, size.height) / 2.5;
+    final paintNode = Paint()..color = Colors.teal;
+    final paintEdge = Paint()..color = Colors.grey..strokeWidth = 2;
 
-    final nodePaint = Paint()..color = Colors.deepPurpleAccent;
-    final edgePaint = Paint()
-      ..color = Colors.grey.withOpacity(0.3)
-      ..strokeWidth = 1.0;
+    Map<String, Offset> positions = {};
+    for (int i = 0; i < nodes.length; i++) {
+      final angle = (i * 2 * pi) / nodes.length;
+      positions[nodes[i].id] = Offset(center.dx + radius * cos(angle), center.dy + radius * sin(angle));
+    }
+
+    for (final edge in edges) {
+      if (positions.containsKey(edge.sourceId) && positions.containsKey(edge.targetId)) {
+        canvas.drawLine(positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+      }
+    }
 
     for (final node in nodes) {
-      final pos = positions[node.id];
-      if (pos != null && viewport.contains(pos)) {
-        canvas.drawCircle(pos, 6.0, nodePaint);
-      }
+      final pos = positions[node.id]!;
+      canvas.drawCircle(pos, 20, paintNode);
+      final tp = TextPainter(
+        text: TextSpan(text: node.label, style: const TextStyle(color: Colors.white, fontSize: 10)),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, pos - Offset(tp.width / 2, tp.height / 2));
     }
   }
 
   @override
-  bool shouldRepaint(covariant _VirtualizingGraphPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

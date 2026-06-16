@@ -4,15 +4,14 @@ import 'tables.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Palaces, Nodes, Edges])
+@DriftDatabase(tables: [Palaces, ChatMessages, Nodes, Edges])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2; // Bumped schema version for new table
 
   static QueryExecutor _openConnection() {
-    // drift_flutter automatically handles platform-specific SQLite bindings
     return driftDatabase(name: 'sovereign_mempalace_db');
   }
 }
