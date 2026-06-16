@@ -47,7 +47,8 @@ class HomeScreen extends StatelessWidget {
               color: Colors.indigo,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vault module pending implementation.')),
+                  const SnackBar(
+                      content: Text('Vault module pending implementation.')),
                 );
               },
             ),
@@ -101,7 +102,8 @@ class HomeScreen extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ],
           ),

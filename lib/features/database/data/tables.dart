@@ -9,21 +9,22 @@ class Palaces extends Table {
 class Nodes extends Table {
   TextColumn get id => text()(); // The actual entity (e.g., "MG ZS")
   TextColumn get label => text()();
-  
+
   @override
   Set<Column> get primaryKey => {id};
 }
 
 class Edges extends Table {
   IntColumn get id => integer().autoIncrement()();
-  
+
   // Explicitly naming the reverse-references stops Drift's generator from getting confused
   @ReferenceName('sourceEdges')
   TextColumn get sourceId => text().references(Nodes, #id)();
-  
+
   @ReferenceName('targetEdges')
   TextColumn get targetId => text().references(Nodes, #id)();
-  
+
   TextColumn get label => text()(); // The relationship (e.g., "is a")
-  IntColumn get palaceId => integer().references(Palaces, #id)(); // Tracks origin
+  IntColumn get palaceId =>
+      integer().references(Palaces, #id)(); // Tracks origin
 }

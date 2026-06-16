@@ -56,7 +56,8 @@ class _PalaceScreenState extends State<PalaceScreen> {
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 6.0),
                         child: ListTile(
-                          leading: const Icon(Icons.psychology, color: Colors.teal),
+                          leading:
+                              const Icon(Icons.psychology, color: Colors.teal),
                           title: Text(_capturedThoughts[index]),
                         ),
                       );
