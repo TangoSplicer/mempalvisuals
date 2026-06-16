@@ -17,13 +17,17 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
   void initState() {
     super.initState();
     if (widget.existingPalaceId != null) {
-      Future.microtask(() => ref.read(palaceControllerProvider.notifier).loadExistingPalace(widget.existingPalaceId!));
+      Future.microtask(() => ref
+          .read(palaceControllerProvider.notifier)
+          .loadExistingPalace(widget.existingPalaceId!));
     }
   }
 
   void _handleSubmitting() {
     if (_thoughtController.text.isNotEmpty) {
-      ref.read(palaceControllerProvider.notifier).submitThought(_thoughtController.text);
+      ref
+          .read(palaceControllerProvider.notifier)
+          .submitThought(_thoughtController.text);
       _thoughtController.clear();
     }
   }
@@ -32,7 +36,9 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(palaceControllerProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.existingPalaceId != null ? 'Memory Room' : 'New Room')),
+      appBar: AppBar(
+          title: Text(
+              widget.existingPalaceId != null ? 'Memory Room' : 'New Room')),
       body: Column(
         children: [
           Expanded(
@@ -42,15 +48,19 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
               itemBuilder: (context, index) {
                 final msg = state.messages[index];
                 return Align(
-                  alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: msg.isUser ? Colors.teal.shade700 : Colors.blueGrey.shade800,
+                      color: msg.isUser
+                          ? Colors.teal.shade700
+                          : Colors.blueGrey.shade800,
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    child: Text(msg.text, style: const TextStyle(color: Colors.white)),
+                    child: Text(msg.text,
+                        style: const TextStyle(color: Colors.white)),
                   ),
                 );
               },
@@ -65,11 +75,15 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
                   Expanded(
                     child: TextField(
                       controller: _thoughtController,
-                      decoration: const InputDecoration(hintText: 'Enter thought...', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                          hintText: 'Enter thought...',
+                          border: OutlineInputBorder()),
                       onSubmitted: (_) => _handleSubmitting(),
                     ),
                   ),
-                  IconButton(icon: const Icon(Icons.send), onPressed: _handleSubmitting),
+                  IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _handleSubmitting),
                 ],
               ),
             ),

@@ -14,8 +14,10 @@ class GraphScreen extends ConsumerWidget {
       body: FutureBuilder(
         future: Future.wait([repo.getAllNodes(), repo.getAllEdges()]),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          return GraphCanvas(nodes: snapshot.data![0], edges: snapshot.data![1]);
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
+          return GraphCanvas(
+              nodes: snapshot.data![0], edges: snapshot.data![1]);
         },
       ),
     );

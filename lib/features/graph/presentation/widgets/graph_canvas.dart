@@ -27,17 +27,22 @@ class _GraphPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width, size.height) / 2.5;
     final paintNode = Paint()..color = Colors.teal;
-    final paintEdge = Paint()..color = Colors.grey..strokeWidth = 2;
+    final paintEdge = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 2;
 
     Map<String, Offset> positions = {};
     for (int i = 0; i < nodes.length; i++) {
       final angle = (i * 2 * pi) / nodes.length;
-      positions[nodes[i].id] = Offset(center.dx + radius * cos(angle), center.dy + radius * sin(angle));
+      positions[nodes[i].id] = Offset(
+          center.dx + radius * cos(angle), center.dy + radius * sin(angle));
     }
 
     for (final edge in edges) {
-      if (positions.containsKey(edge.sourceId) && positions.containsKey(edge.targetId)) {
-        canvas.drawLine(positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+      if (positions.containsKey(edge.sourceId) &&
+          positions.containsKey(edge.targetId)) {
+        canvas.drawLine(
+            positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
       }
     }
 
@@ -45,7 +50,9 @@ class _GraphPainter extends CustomPainter {
       final pos = positions[node.id]!;
       canvas.drawCircle(pos, 20, paintNode);
       final tp = TextPainter(
-        text: TextSpan(text: node.label, style: const TextStyle(color: Colors.white, fontSize: 10)),
+        text: TextSpan(
+            text: node.label,
+            style: const TextStyle(color: Colors.white, fontSize: 10)),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, pos - Offset(tp.width / 2, tp.height / 2));

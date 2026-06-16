@@ -15,7 +15,7 @@ class ChatMessages extends Table {
 }
 
 class Nodes extends Table {
-  TextColumn get id => text()(); 
+  TextColumn get id => text()();
   TextColumn get label => text()();
   @override
   Set<Column> get primaryKey => {id};
@@ -27,6 +27,6 @@ class Edges extends Table {
   TextColumn get sourceId => text().references(Nodes, #id)();
   @ReferenceName('targetEdges')
   TextColumn get targetId => text().references(Nodes, #id)();
-  TextColumn get label => text()(); 
-  IntColumn get palaceId => integer().references(Palaces, #id)(); 
+  TextColumn get label => text()();
+  IntColumn get palaceId => integer().references(Palaces, #id)();
 }

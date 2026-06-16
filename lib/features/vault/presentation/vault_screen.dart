@@ -16,10 +16,12 @@ class VaultScreen extends ConsumerWidget {
       body: FutureBuilder<List<Palace>>(
         future: repo.getAllPalaces(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
           final palaces = snapshot.data!;
-          if (palaces.isEmpty) return const Center(child: Text('Vault is empty.'));
-          
+          if (palaces.isEmpty)
+            return const Center(child: Text('Vault is empty.'));
+
           return ListView.builder(
             itemCount: palaces.length,
             itemBuilder: (context, index) {
@@ -31,7 +33,8 @@ class VaultScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => PalaceScreen(existingPalaceId: p.id)),
+                  MaterialPageRoute(
+                      builder: (_) => PalaceScreen(existingPalaceId: p.id)),
                 ),
               );
             },
