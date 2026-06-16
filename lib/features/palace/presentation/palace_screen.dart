@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../application/palace_controller.dart';
 
-class PalaceScreen extends StatefulWidget {
+class PalaceScreen extends ConsumerStatefulWidget {
   const PalaceScreen({super.key});
 
   @override
-  State<PalaceScreen> createState() => _PalaceScreenState();
+  ConsumerState<PalaceScreen> createState() => _PalaceScreenState();
 }
 
-class _PalaceScreenState extends State<PalaceScreen> {
+class _PalaceScreenState extends ConsumerState<PalaceScreen> {
   final TextEditingController _thoughtController = TextEditingController();
-  final List<String> _capturedThoughts = [];
 
   void _handleSubmitting() {
     final text = _thoughtController.text.trim();
     if (text.isNotEmpty) {
-      setState(() {
-        _capturedThoughts.add(text);
-      });
+      ref.read(palaceControllerProvider.notifier).submitThought(text);
       _thoughtController.clear();
-      // Temporary user confirmation until pipeline execution services are wired up
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Thought logged locally: "$text"')),
-      );
     }
   }
 
   @override
+  void dispose() {
+    _thoughtController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(palaceControllerProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('New Memory Room'),
@@ -38,12 +41,12 @@ class _PalaceScreenState extends State<PalaceScreen> {
       body: Column(
         children: [
           Expanded(
-            child: _capturedThoughts.isEmpty
+            child: state.messages.isEmpty
                 ? const Center(
                     child: Padding(
                       padding: EdgeInsets.all(24.0),
                       child: Text(
-                        'Room is empty.\nType your thought below to begin relational mapping.',
+                        'Room is empty.\nType your thought below to begin relational extraction.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey, fontSize: 16),
                       ),
@@ -51,19 +54,32 @@ class _PalaceScreenState extends State<PalaceScreen> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16.0),
-                    itemCount: _capturedThoughts.length,
+                    itemCount: state.messages.length,
                     itemBuilder: (context, index) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: ListTile(
-                          leading:
-                              const Icon(Icons.psychology, color: Colors.teal),
-                          title: Text(_capturedThoughts[index]),
+                      final msg = state.messages[index];
+                      return Align(
+                        alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6.0),
+                          padding: const EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            color: msg.isUser ? Colors.teal.shade700 : Colors.blueGrey.shade800,
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          child: Text(
+                            msg.text,
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
                       );
                     },
                   ),
           ),
+          if (state.isProcessing)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: LinearProgressIndicator(color: Colors.teal),
+            ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -72,6 +88,7 @@ class _PalaceScreenState extends State<PalaceScreen> {
                   Expanded(
                     child: TextField(
                       controller: _thoughtController,
+                      enabled: !state.isProcessing,
                       decoration: InputDecoration(
                         hintText: 'Capture thought or log action...',
                         filled: true,
@@ -90,10 +107,10 @@ class _PalaceScreenState extends State<PalaceScreen> {
                   const SizedBox(width: 8),
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: Colors.teal,
+                    backgroundColor: state.isProcessing ? Colors.grey : Colors.teal,
                     child: IconButton(
                       icon: const Icon(Icons.send, color: Colors.white),
-                      onPressed: _handleSubmitting,
+                      onPressed: state.isProcessing ? null : _handleSubmitting,
                     ),
                   ),
                 ],
@@ -103,11 +120,5 @@ class _PalaceScreenState extends State<PalaceScreen> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _thoughtController.dispose();
-    super.dispose();
   }
 }
