@@ -9,7 +9,7 @@ class Palaces extends Table {
 class ChatMessages extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get palaceId => integer().references(Palaces, #id)();
-  TextColumn get text => text()();
+  TextColumn get messageText => text()(); // FIXED: Renamed to avoid reserved keyword collision
   BoolColumn get isUser => boolean()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
