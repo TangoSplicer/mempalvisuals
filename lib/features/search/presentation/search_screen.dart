@@ -19,10 +19,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context)),
           title: const Text('Kill-Switch Editor'),
+          leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
           bottom: const TabBar(tabs: [Tab(text: 'Nodes'), Tab(text: 'Edges')]),
         ),
         body: TabBarView(
