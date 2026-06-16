@@ -58,12 +58,16 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
                     itemBuilder: (context, index) {
                       final msg = state.messages[index];
                       return Align(
-                        alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        alignment: msg.isUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 6.0),
                           padding: const EdgeInsets.all(12.0),
                           decoration: BoxDecoration(
-                            color: msg.isUser ? Colors.teal.shade700 : Colors.blueGrey.shade800,
+                            color: msg.isUser
+                                ? Colors.teal.shade700
+                                : Colors.blueGrey.shade800,
                             borderRadius: BorderRadius.circular(16.0),
                           ),
                           child: Text(
@@ -107,7 +111,8 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
                   const SizedBox(width: 8),
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: state.isProcessing ? Colors.grey : Colors.teal,
+                    backgroundColor:
+                        state.isProcessing ? Colors.grey : Colors.teal,
                     child: IconButton(
                       icon: const Icon(Icons.send, color: Colors.white),
                       onPressed: state.isProcessing ? null : _handleSubmitting,

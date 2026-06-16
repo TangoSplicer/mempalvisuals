@@ -13,11 +13,12 @@ class PalaceRepository {
 
   Future<int> createRoom(String title) async {
     return await _db.into(_db.palaces).insert(
-      PalacesCompanion.insert(title: title),
-    );
+          PalacesCompanion.insert(title: title),
+        );
   }
 
-  Future<void> saveGraphData(int palaceId, Map<String, dynamic> graphData) async {
+  Future<void> saveGraphData(
+      int palaceId, Map<String, dynamic> graphData) async {
     // Execute as a single transaction for data integrity
     await _db.transaction(() async {
       final nodes = graphData['nodes'] as List<dynamic>? ?? [];
@@ -28,8 +29,8 @@ class PalaceRepository {
         final id = n['id'].toString();
         final label = n['label']?.toString() ?? id;
         await _db.into(_db.nodes).insertOnConflictUpdate(
-          NodesCompanion.insert(id: id, label: label),
-        );
+              NodesCompanion.insert(id: id, label: label),
+            );
       }
 
       // Insert Edges with the relational Palace ID
@@ -38,13 +39,13 @@ class PalaceRepository {
         final target = e['target'].toString();
         final label = e['label']?.toString() ?? '';
         await _db.into(_db.edges).insert(
-          EdgesCompanion.insert(
-            sourceId: source,
-            targetId: target,
-            label: label,
-            palaceId: palaceId,
-          ),
-        );
+              EdgesCompanion.insert(
+                sourceId: source,
+                targetId: target,
+                label: label,
+                palaceId: palaceId,
+              ),
+            );
       }
     });
   }
