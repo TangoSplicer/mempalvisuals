@@ -4,8 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-  final String _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -18,28 +17,36 @@ class GeminiService {
     }
 
     final systemPrompt = '''
-You are a knowledge graph extractor. Analyze the user's text and extract core entities as nodes and their relationships as edges.
-Return ONLY a valid JSON object matching exactly this schema:
+You are a Deep Graph Extraction Engine for a sovereign engineering knowledge base.
+Analyze the user's technical log and extract an advanced ontology mapping causal relationships, architectural decisions, dependencies, and state changes.
+
+RULES:
+1. Nodes must represent discrete entities, concepts, systems, errors, or files.
+2. Edges must represent strict causal, hierarchical, or temporal relationships (Use exact uppercase labels like DEPENDS_ON, CAUSES, RESOLVES, IMPLEMENTS, DEPRECATES, CONFLICTS_WITH).
+3. Pack critical technical context directly into the labels to preserve detail.
+
+EXAMPLE INTERACTION: 
+"I had to rewrite the WhisperNet gossip protocol in Rust because the WASM cross-compilation in Termux was throwing a memory fault."
+
+EXPECTED OUTPUT FORMAT:
 {
-  "nodes": [{"id": "unique_string", "label": "Entity Name"}],
-  "edges": [{"source": "node_id_1", "target": "node_id_2", "label": "relationship description"}]
+  "nodes": [
+    {"id": "whispernet_gossip", "label": "WhisperNet Gossip Protocol (Rust)"},
+    {"id": "wasm_termux_build", "label": "WASM Cross-compilation in Termux"},
+    {"id": "mem_fault_0x1", "label": "Memory Fault Error"}
+  ],
+  "edges": [
+    {"source": "wasm_termux_build", "target": "mem_fault_0x1", "label": "CAUSES"},
+    {"source": "whispernet_gossip", "target": "mem_fault_0x1", "label": "RESOLVES"}
+  ]
 }
-Do not include markdown formatting, backticks, or any conversational text.
+
+Return ONLY a valid JSON object matching the above schema. Do not include markdown formatting, backticks, or conversational text.
 ''';
 
     final payload = {
-      "contents": [
-        {
-          "parts": [
-            {"text": systemPrompt},
-            {"text": "User Input: $userInput"}
-          ]
-        }
-      ],
-      "generationConfig": {
-        "temperature": 0.1,
-        "responseMimeType": "application/json"
-      }
+      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
+      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
     };
 
     try {
@@ -50,24 +57,15 @@ Do not include markdown formatting, backticks, or any conversational text.
       );
 
       if (response.statusCode == 200) {
-        String textResponse =
-            response.data['candidates'][0]['content']['parts'][0]['text'];
-
-        // CRITICAL FIX: Strip markdown code blocks if the LLM disobeys formatting instructions
-        textResponse = textResponse
-            .replaceAll(RegExp(r'```json\n?'), '')
-            .replaceAll(RegExp(r'```\n?'), '')
-            .trim();
-
+        String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
+        textResponse = textResponse.replaceAll(RegExp(r'```json\n?'), '').replaceAll(RegExp(r'```\n?'), '').trim();
         return jsonDecode(textResponse);
       } else {
         throw Exception('API returned ${response.statusCode}');
       }
     } on DioException catch (e) {
-      // Expose the actual network error from Google
       throw Exception('Network Error: ${e.response?.data ?? e.message}');
     } catch (e) {
-      // Expose JSON parsing errors
       throw Exception('Parsing Error: $e');
     }
   }
