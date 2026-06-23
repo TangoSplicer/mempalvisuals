@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+  final String _endpoint =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -45,8 +46,18 @@ Return ONLY a valid JSON object matching the above schema. Do not include markdo
 ''';
 
     final payload = {
-      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
-      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
+      "contents": [
+        {
+          "parts": [
+            {"text": systemPrompt},
+            {"text": "User Input: $userInput"}
+          ]
+        }
+      ],
+      "generationConfig": {
+        "temperature": 0.1,
+        "responseMimeType": "application/json"
+      }
     };
 
     try {
@@ -57,8 +68,12 @@ Return ONLY a valid JSON object matching the above schema. Do not include markdo
       );
 
       if (response.statusCode == 200) {
-        String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
-        textResponse = textResponse.replaceAll(RegExp(r'```json\n?'), '').replaceAll(RegExp(r'```\n?'), '').trim();
+        String textResponse =
+            response.data['candidates'][0]['content']['parts'][0]['text'];
+        textResponse = textResponse
+            .replaceAll(RegExp(r'```json\n?'), '')
+            .replaceAll(RegExp(r'```\n?'), '')
+            .trim();
         return jsonDecode(textResponse);
       } else {
         throw Exception('API returned ${response.statusCode}');
