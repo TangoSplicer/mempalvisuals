@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class GeminiService {
   final Dio _dio;
   // FIXED: Using the actual, production-ready 1.5-flash-latest endpoint
-  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+  final String _endpoint =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -46,8 +47,18 @@ Return ONLY a valid JSON object matching the above schema. Do not include markdo
 ''';
 
     final payload = {
-      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
-      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
+      "contents": [
+        {
+          "parts": [
+            {"text": systemPrompt},
+            {"text": "User Input: $userInput"}
+          ]
+        }
+      ],
+      "generationConfig": {
+        "temperature": 0.1,
+        "responseMimeType": "application/json"
+      }
     };
 
     // Implement Exponential Backoff for 503 High Demand Errors
@@ -62,23 +73,29 @@ Return ONLY a valid JSON object matching the above schema. Do not include markdo
           options: Options(
             headers: {'Content-Type': 'application/json'},
             // Prevent Dio from automatically throwing an exception on non-200 codes so we can handle 503s manually
-            validateStatus: (status) => status != null && status < 600, 
+            validateStatus: (status) => status != null && status < 600,
           ),
         );
 
         if (response.statusCode == 200) {
-          String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
-          textResponse = textResponse.replaceAll(RegExp(r'```json\n?'), '').replaceAll(RegExp(r'```\n?'), '').trim();
+          String textResponse =
+              response.data['candidates'][0]['content']['parts'][0]['text'];
+          textResponse = textResponse
+              .replaceAll(RegExp(r'```json\n?'), '')
+              .replaceAll(RegExp(r'```\n?'), '')
+              .trim();
           return jsonDecode(textResponse);
         } else if (response.statusCode == 503) {
           if (attempt == maxRetries) {
-            throw Exception('API is overloaded (503). Retried $maxRetries times. Please try again later.');
+            throw Exception(
+                'API is overloaded (503). Retried $maxRetries times. Please try again later.');
           }
           // Wait and retry with exponential backoff
           await Future.delayed(Duration(milliseconds: retryDelay * attempt));
           continue;
         } else {
-          throw Exception('API returned ${response.statusCode}: ${response.data}');
+          throw Exception(
+              'API returned ${response.statusCode}: ${response.data}');
         }
       } on DioException catch (e) {
         throw Exception('Network Error: ${e.response?.data ?? e.message}');
