@@ -6,7 +6,7 @@ class GeminiService {
   final Dio _dio;
   // FIXED: Using the actual, production-ready 1.5-flash-latest endpoint
   final String _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
