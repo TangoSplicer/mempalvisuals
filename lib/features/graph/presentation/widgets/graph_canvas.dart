@@ -27,30 +27,37 @@ class _GraphPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width, size.height) / 2.5;
     final paintNode = Paint()..color = Colors.teal.shade700;
-    final paintEdge = Paint()..color = Colors.grey.shade600..strokeWidth = 2.0;
+    final paintEdge = Paint()
+      ..color = Colors.grey.shade600
+      ..strokeWidth = 2.0;
 
     Map<String, Offset> positions = {};
     for (int i = 0; i < nodes.length; i++) {
       final angle = (i * 2 * pi) / nodes.length;
-      positions[nodes[i].id] = Offset(center.dx + radius * cos(angle), center.dy + radius * sin(angle));
+      positions[nodes[i].id] = Offset(
+          center.dx + radius * cos(angle), center.dy + radius * sin(angle));
     }
 
     // Draw Edges First (so they sit underneath the nodes)
     for (final edge in edges) {
-      if (positions.containsKey(edge.sourceId) && positions.containsKey(edge.targetId)) {
-        canvas.drawLine(positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+      if (positions.containsKey(edge.sourceId) &&
+          positions.containsKey(edge.targetId)) {
+        canvas.drawLine(
+            positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
       }
     }
 
     // Draw Nodes as dynamically sized pills
     for (final node in nodes) {
       final pos = positions[node.id]!;
-      
+
       final tp = TextPainter(
         text: TextSpan(
-          text: node.label, 
-          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)
-        ),
+            text: node.label,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.bold)),
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
       )..layout(maxWidth: 120); // Allows text to wrap if it gets too long

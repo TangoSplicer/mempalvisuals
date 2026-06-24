@@ -20,10 +20,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         title: const Text('Amend Node'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Node Label', border: OutlineInputBorder()),
+          decoration: const InputDecoration(
+              labelText: 'Node Label', border: OutlineInputBorder()),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(c), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               await repo.updateNode(node.id, controller.text.trim());
@@ -45,10 +47,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         title: const Text('Amend Relationship'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Edge Label', border: OutlineInputBorder()),
+          decoration: const InputDecoration(
+              labelText: 'Edge Label', border: OutlineInputBorder()),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(c), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               await repo.updateEdge(edge.id, controller.text.trim());
@@ -70,7 +74,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Database Editor'),
-          leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+          leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context)),
           bottom: const TabBar(tabs: [Tab(text: 'Nodes'), Tab(text: 'Edges')]),
         ),
         body: TabBarView(
@@ -78,19 +84,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             FutureBuilder<List<Node>>(
               future: repo.getAllNodes(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
                 return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final n = snapshot.data![index];
                     return ListTile(
-                      title: Text(n.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(n.label,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text('ID: ${n.id}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                            icon: const Icon(Icons.edit,
+                                color: Colors.blueAccent),
                             onPressed: () => _editNodeDialog(repo, n),
                           ),
                           IconButton(
@@ -110,19 +119,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             FutureBuilder<List<Edge>>(
               future: repo.getAllEdges(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
                 return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final e = snapshot.data![index];
                     return ListTile(
                       title: Text('${e.sourceId} -> ${e.targetId}'),
-                      subtitle: Text(e.label, style: const TextStyle(color: Colors.teal)),
+                      subtitle: Text(e.label,
+                          style: const TextStyle(color: Colors.teal)),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                            icon: const Icon(Icons.edit,
+                                color: Colors.blueAccent),
                             onPressed: () => _editEdgeDialog(repo, e),
                           ),
                           IconButton(
