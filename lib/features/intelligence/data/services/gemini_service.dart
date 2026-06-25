@@ -4,9 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-  // FIXED: Using the actual, production-ready 1.5-flash-latest endpoint
-  final String _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -19,27 +17,24 @@ class GeminiService {
     }
 
     final systemPrompt = '''
-You are a Deep Graph Extraction Engine for a sovereign engineering knowledge base.
-Analyze the user's technical log and extract an advanced ontology mapping causal relationships, architectural decisions, dependencies, and state changes.
+You are a Universal Knowledge Graph Extraction Engine.
+Analyze the user's input and extract an ontology of discrete entities and their relational links. 
 
 RULES:
-1. Nodes must represent discrete entities, concepts, systems, errors, or files.
-2. Edges must represent strict causal, hierarchical, or temporal relationships (Use exact uppercase labels like DEPENDS_ON, CAUSES, RESOLVES, IMPLEMENTS, DEPRECATES, CONFLICTS_WITH).
-3. Pack critical technical context directly into the labels to preserve detail.
-
-EXAMPLE INTERACTION: 
-"I had to rewrite the WhisperNet gossip protocol in Rust because the WASM cross-compilation in Termux was throwing a memory fault."
+1. Nodes represent distinct entities. These can be Technical (Software, Hardware, Errors, Architectures) OR General (People, Assets, Organizations, Concepts, Locations).
+2. Edges represent strict relationships (e.g., OWNS, SIBLING_OF, WORKS_FOR, DEPENDS_ON, CAUSES, LIKES).
+3. Pack descriptive context directly into the node labels.
 
 EXPECTED OUTPUT FORMAT:
 {
   "nodes": [
-    {"id": "whispernet_gossip", "label": "WhisperNet Gossip Protocol (Rust)"},
-    {"id": "wasm_termux_build", "label": "WASM Cross-compilation in Termux"},
-    {"id": "mem_fault_0x1", "label": "Memory Fault Error"}
+    {"id": "jason_user", "label": "Jason (User, Age 35)"},
+    {"id": "peugeot_5008", "label": "Blue Peugeot 5008"},
+    {"id": "hmrc_gov", "label": "HMRC (Employer)"}
   ],
   "edges": [
-    {"source": "wasm_termux_build", "target": "mem_fault_0x1", "label": "CAUSES"},
-    {"source": "whispernet_gossip", "target": "mem_fault_0x1", "label": "RESOLVES"}
+    {"source": "jason_user", "target": "peugeot_5008", "label": "OWNS"},
+    {"source": "jason_user", "target": "hmrc_gov", "label": "WORKS_FOR"}
   ]
 }
 
@@ -47,23 +42,12 @@ Return ONLY a valid JSON object matching the above schema. Do not include markdo
 ''';
 
     final payload = {
-      "contents": [
-        {
-          "parts": [
-            {"text": systemPrompt},
-            {"text": "User Input: $userInput"}
-          ]
-        }
-      ],
-      "generationConfig": {
-        "temperature": 0.1,
-        "responseMimeType": "application/json"
-      }
+      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
+      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
     };
 
-    // Implement Exponential Backoff for 503 High Demand Errors
     int maxRetries = 3;
-    int retryDelay = 2000; // Start with a 2-second delay
+    int retryDelay = 2000; 
 
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -72,35 +56,26 @@ Return ONLY a valid JSON object matching the above schema. Do not include markdo
           data: payload,
           options: Options(
             headers: {'Content-Type': 'application/json'},
-            // Prevent Dio from automatically throwing an exception on non-200 codes so we can handle 503s manually
-            validateStatus: (status) => status != null && status < 600,
+            validateStatus: (status) => status != null && status < 600, 
           ),
         );
 
         if (response.statusCode == 200) {
-          String textResponse =
-              response.data['candidates'][0]['content']['parts'][0]['text'];
-          textResponse = textResponse
-              .replaceAll(RegExp(r'```json\n?'), '')
-              .replaceAll(RegExp(r'```\n?'), '')
-              .trim();
+          String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
+          textResponse = textResponse.replaceAll(RegExp(r'```json\n?'), '').replaceAll(RegExp(r'```\n?'), '').trim();
           return jsonDecode(textResponse);
         } else if (response.statusCode == 503) {
           if (attempt == maxRetries) {
-            throw Exception(
-                'API is overloaded (503). Retried $maxRetries times. Please try again later.');
+            throw Exception('API is overloaded (503). Retried $maxRetries times. Please try again later.');
           }
-          // Wait and retry with exponential backoff
           await Future.delayed(Duration(milliseconds: retryDelay * attempt));
           continue;
         } else {
-          throw Exception(
-              'API returned ${response.statusCode}: ${response.data}');
+          throw Exception('API returned ${response.statusCode}: ${response.data}');
         }
       } on DioException catch (e) {
         throw Exception('Network Error: ${e.response?.data ?? e.message}');
       } catch (e) {
-        // Only throw if we have exhausted retries or it's a completely different parsing error
         if (attempt == maxRetries) {
           throw Exception('Error: $e');
         }
