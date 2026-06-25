@@ -25,14 +25,14 @@ class _GraphCanvasState extends State<GraphCanvas> {
   void _initializePositions() {
     if (widget.nodes.isEmpty) return;
     final center = Offset(_canvasSize / 2, _canvasSize / 2);
-    final radius = min(MediaQueryData.fromView(WidgetsBinding.instance.window).size.width, 400.0);
-    
+    final radius = min(
+        MediaQueryData.fromView(WidgetsBinding.instance.window).size.width,
+        400.0);
+
     for (int i = 0; i < widget.nodes.length; i++) {
       final angle = (i * 2 * pi) / widget.nodes.length;
       _positions[widget.nodes[i].id] = Offset(
-        center.dx + radius * cos(angle), 
-        center.dy + radius * sin(angle)
-      );
+          center.dx + radius * cos(angle), center.dy + radius * sin(angle));
     }
   }
 
@@ -58,27 +58,35 @@ class _GraphCanvasState extends State<GraphCanvas> {
               final pos = _positions[node.id] ?? const Offset(0, 0);
               return Positioned(
                 left: pos.dx - 60, // approximate half-width to center
-                top: pos.dy - 20,  // approximate half-height to center
+                top: pos.dy - 20, // approximate half-height to center
                 child: GestureDetector(
                   onPanUpdate: (details) {
                     setState(() {
-                      _positions[node.id] = _positions[node.id]! + details.delta;
+                      _positions[node.id] =
+                          _positions[node.id]! + details.delta;
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.teal.shade700,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(2, 2))
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(2, 2))
                       ],
                     ),
                     constraints: const BoxConstraints(maxWidth: 150),
                     child: Text(
                       node.label,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -104,8 +112,10 @@ class _EdgePainter extends CustomPainter {
       ..strokeWidth = 2.0;
 
     for (final edge in edges) {
-      if (positions.containsKey(edge.sourceId) && positions.containsKey(edge.targetId)) {
-        canvas.drawLine(positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+      if (positions.containsKey(edge.sourceId) &&
+          positions.containsKey(edge.targetId)) {
+        canvas.drawLine(
+            positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
       }
     }
   }
