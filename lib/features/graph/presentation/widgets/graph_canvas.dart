@@ -14,14 +14,16 @@ class GraphCanvas extends StatefulWidget {
 
 class _GraphCanvasState extends State<GraphCanvas> {
   final Map<String, Offset> _positions = {};
-  final double _canvasSize = 8000.0; // Doubled canvas size to allow for massive network expansion
-  final TransformationController _transformationController = TransformationController();
+  final double _canvasSize =
+      8000.0; // Doubled canvas size to allow for massive network expansion
+  final TransformationController _transformationController =
+      TransformationController();
 
   @override
   void initState() {
     super.initState();
     _initializePositions();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenSize = MediaQuery.of(context).size;
       final dx = (_canvasSize / 2) - (screenSize.width / 2);
@@ -33,19 +35,17 @@ class _GraphCanvasState extends State<GraphCanvas> {
   void _initializePositions() {
     if (widget.nodes.isEmpty) return;
     final center = Offset(_canvasSize / 2, _canvasSize / 2);
-    
+
     // DYNAMIC RADIUS ALGORITHM
     // Guarantee at least 160 pixels of arc length per node so they never overlap
-    final requiredCircumference = widget.nodes.length * 160.0; 
+    final requiredCircumference = widget.nodes.length * 160.0;
     // Radius = Circumference / (2 * Pi). Cap minimum radius at 250 for small graphs.
-    final radius = max(250.0, requiredCircumference / (2 * pi)); 
-    
+    final radius = max(250.0, requiredCircumference / (2 * pi));
+
     for (int i = 0; i < widget.nodes.length; i++) {
       final angle = (i * 2 * pi) / widget.nodes.length;
       _positions[widget.nodes[i].id] = Offset(
-        center.dx + radius * cos(angle), 
-        center.dy + radius * sin(angle)
-      );
+          center.dx + radius * cos(angle), center.dy + radius * sin(angle));
     }
   }
 
@@ -78,28 +78,37 @@ class _GraphCanvasState extends State<GraphCanvas> {
               final pos = _positions[node.id] ?? const Offset(0, 0);
               return Positioned(
                 left: pos.dx - 75, // Adjust for max-width of 150
-                top: pos.dy - 20,  
+                top: pos.dy - 20,
                 child: GestureDetector(
                   onPanUpdate: (details) {
                     setState(() {
-                      final scale = _transformationController.value.getMaxScaleOnAxis();
-                      _positions[node.id] = _positions[node.id]! + (details.delta / scale);
+                      final scale =
+                          _transformationController.value.getMaxScaleOnAxis();
+                      _positions[node.id] =
+                          _positions[node.id]! + (details.delta / scale);
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.teal.shade700,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(2, 2))
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(2, 2))
                       ],
                     ),
                     constraints: const BoxConstraints(maxWidth: 150),
                     child: Text(
                       node.label,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -125,8 +134,10 @@ class _EdgePainter extends CustomPainter {
       ..strokeWidth = 2.0;
 
     for (final edge in edges) {
-      if (positions.containsKey(edge.sourceId) && positions.containsKey(edge.targetId)) {
-        canvas.drawLine(positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+      if (positions.containsKey(edge.sourceId) &&
+          positions.containsKey(edge.targetId)) {
+        canvas.drawLine(
+            positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
       }
     }
   }
