@@ -1,10 +1,10 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../../database/data/database.dart';
+import 'package:graphview/GraphView.dart';
+import '../../../database/data/database.dart' as db;
 
 class GraphCanvas extends StatefulWidget {
-  final List<Node> nodes;
-  final List<Edge> edges;
+  final List<db.Node> nodes;
+  final List<db.Edge> edges;
 
   const GraphCanvas({super.key, required this.nodes, required this.edges});
 
@@ -13,135 +13,71 @@ class GraphCanvas extends StatefulWidget {
 }
 
 class _GraphCanvasState extends State<GraphCanvas> {
-  final Map<String, Offset> _positions = {};
-  final double _canvasSize =
-      8000.0; // Doubled canvas size to allow for massive network expansion
-  final TransformationController _transformationController =
-      TransformationController();
+  final Graph graph = Graph();
+  late FruchtermanReingoldAlgorithm algorithm;
 
   @override
   void initState() {
     super.initState();
-    _initializePositions();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final screenSize = MediaQuery.of(context).size;
-      final dx = (_canvasSize / 2) - (screenSize.width / 2);
-      final dy = (_canvasSize / 2) - (screenSize.height / 2);
-      _transformationController.value = Matrix4.identity()..translate(-dx, -dy);
-    });
-  }
-
-  void _initializePositions() {
-    if (widget.nodes.isEmpty) return;
-    final center = Offset(_canvasSize / 2, _canvasSize / 2);
-
-    // DYNAMIC RADIUS ALGORITHM
-    // Guarantee at least 160 pixels of arc length per node so they never overlap
-    final requiredCircumference = widget.nodes.length * 160.0;
-    // Radius = Circumference / (2 * Pi). Cap minimum radius at 250 for small graphs.
-    final radius = max(250.0, requiredCircumference / (2 * pi));
-
-    for (int i = 0; i < widget.nodes.length; i++) {
-      final angle = (i * 2 * pi) / widget.nodes.length;
-      _positions[widget.nodes[i].id] = Offset(
-          center.dx + radius * cos(angle), center.dy + radius * sin(angle));
+    // This physics algorithm mimics magnetic repulsion and spring tension to build the web
+    algorithm = FruchtermanReingoldAlgorithm(iterations: 1000);
+    
+    final Map<String, Node> gNodes = {};
+    for (final n in widget.nodes) {
+      final node = Node.Id(n);
+      gNodes[n.id] = node;
+      graph.addNode(node);
     }
-  }
-
-  @override
-  void dispose() {
-    _transformationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InteractiveViewer(
-      transformationController: _transformationController,
-      constrained: false,
-      boundaryMargin: const EdgeInsets.all(4000),
-      minScale: 0.05, // Allow zooming out further for massive graphs
-      maxScale: 5.0,
-      child: SizedBox(
-        width: _canvasSize,
-        height: _canvasSize,
-        child: Stack(
-          children: [
-            // Layer 1: Edges
-            CustomPaint(
-              size: Size(_canvasSize, _canvasSize),
-              painter: _EdgePainter(widget.edges, _positions),
-            ),
-            // Layer 2: Draggable Nodes
-            ...widget.nodes.map((node) {
-              final pos = _positions[node.id] ?? const Offset(0, 0);
-              return Positioned(
-                left: pos.dx - 75, // Adjust for max-width of 150
-                top: pos.dy - 20,
-                child: GestureDetector(
-                  onPanUpdate: (details) {
-                    setState(() {
-                      final scale =
-                          _transformationController.value.getMaxScaleOnAxis();
-                      _positions[node.id] =
-                          _positions[node.id]! + (details.delta / scale);
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.teal.shade700,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(2, 2))
-                      ],
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    child: Text(
-                      node.label,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EdgePainter extends CustomPainter {
-  final List<Edge> edges;
-  final Map<String, Offset> positions;
-
-  _EdgePainter(this.edges, this.positions);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintEdge = Paint()
-      ..color = Colors.grey.shade500
-      ..strokeWidth = 2.0;
-
-    for (final edge in edges) {
-      if (positions.containsKey(edge.sourceId) &&
-          positions.containsKey(edge.targetId)) {
-        canvas.drawLine(
-            positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+    
+    for (final e in widget.edges) {
+      if (gNodes.containsKey(e.sourceId) && gNodes.containsKey(e.targetId)) {
+        graph.addEdge(
+          gNodes[e.sourceId]!, 
+          gNodes[e.targetId]!, 
+          paint: Paint()..color = Colors.grey.shade500..strokeWidth = 2
+        );
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  Widget build(BuildContext context) {
+    if (widget.nodes.isEmpty) return const Center(child: Text('No neural pathways found.'));
+    
+    return InteractiveViewer(
+      constrained: false,
+      boundaryMargin: const EdgeInsets.all(double.infinity), // FIXED: Prevents losing nodes out of bounds
+      minScale: 0.05,
+      maxScale: 5.0,
+      child: Padding(
+        padding: const EdgeInsets.all(2000.0), // Start with a massive spatial buffer
+        child: GraphView(
+          graph: graph,
+          algorithm: algorithm,
+          paint: Paint()
+            ..color = Colors.grey.shade500
+            ..strokeWidth = 2,
+          builder: (Node node) {
+            final dbNode = node.key!.value as db.Node;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.teal.shade700,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(2, 2))
+                ],
+              ),
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: Text(
+                dbNode.label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
