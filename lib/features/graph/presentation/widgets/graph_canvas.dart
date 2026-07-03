@@ -15,28 +15,29 @@ class GraphCanvas extends StatefulWidget {
 class _GraphCanvasState extends State<GraphCanvas> {
   final Graph graph = Graph();
   late FruchtermanReingoldAlgorithm algorithm;
-  final TransformationController _transformationController = TransformationController();
+  final TransformationController _transformationController =
+      TransformationController();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    algorithm = FruchtermanReingoldAlgorithm(FruchtermanReingoldConfiguration(iterations: 1000));
-    
+    algorithm = FruchtermanReingoldAlgorithm(
+        FruchtermanReingoldConfiguration(iterations: 1000));
+
     final Map<String, Node> gNodes = {};
     for (final n in widget.nodes) {
       final node = Node.Id(n);
       gNodes[n.id] = node;
       graph.addNode(node);
     }
-    
+
     for (final e in widget.edges) {
       if (gNodes.containsKey(e.sourceId) && gNodes.containsKey(e.targetId)) {
-        graph.addEdge(
-          gNodes[e.sourceId]!, 
-          gNodes[e.targetId]!, 
-          paint: Paint()..color = Colors.grey.shade500..strokeWidth = 2
-        );
+        graph.addEdge(gNodes[e.sourceId]!, gNodes[e.targetId]!,
+            paint: Paint()
+              ..color = Colors.grey.shade500
+              ..strokeWidth = 2);
       }
     }
 
@@ -58,8 +59,9 @@ class _GraphCanvasState extends State<GraphCanvas> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.nodes.isEmpty) return const Center(child: Text('No neural pathways found.'));
-    
+    if (widget.nodes.isEmpty)
+      return const Center(child: Text('No neural pathways found.'));
+
     return Stack(
       children: [
         InteractiveViewer(
@@ -73,21 +75,35 @@ class _GraphCanvasState extends State<GraphCanvas> {
             child: GraphView(
               graph: graph,
               algorithm: algorithm,
-              paint: Paint()..color = Colors.grey.shade500..strokeWidth = 2,
+              paint: Paint()
+                ..color = Colors.grey.shade500
+                ..strokeWidth = 2,
               builder: (Node node) {
                 final dbNode = node.key!.value as db.Node;
                 // Highlight logic based on live search query
-                final isMatch = _searchQuery.isNotEmpty && 
-                                dbNode.label.toLowerCase().contains(_searchQuery.toLowerCase());
+                final isMatch = _searchQuery.isNotEmpty &&
+                    dbNode.label
+                        .toLowerCase()
+                        .contains(_searchQuery.toLowerCase());
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: isMatch ? Colors.amber.shade700 : Colors.teal.shade700,
+                    color:
+                        isMatch ? Colors.amber.shade700 : Colors.teal.shade700,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
-                      if (isMatch) BoxShadow(color: Colors.amber.withOpacity(0.8), blurRadius: 10, spreadRadius: 2)
-                      else BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(2, 2))
+                      if (isMatch)
+                        BoxShadow(
+                            color: Colors.amber.withOpacity(0.8),
+                            blurRadius: 10,
+                            spreadRadius: 2)
+                      else
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(2, 2))
                     ],
                   ),
                   constraints: const BoxConstraints(maxWidth: 150),
@@ -95,17 +111,16 @@ class _GraphCanvasState extends State<GraphCanvas> {
                     dbNode.label,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isMatch ? Colors.black : Colors.white, 
-                      fontSize: 11, 
-                      fontWeight: FontWeight.bold
-                    ),
+                        color: isMatch ? Colors.black : Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold),
                   ),
                 );
               },
             ),
           ),
         ),
-        
+
         // Search Overlay
         Positioned(
           top: 16,
@@ -123,7 +138,8 @@ class _GraphCanvasState extends State<GraphCanvas> {
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               ),
             ),
           ),
