@@ -8,7 +8,12 @@ class GraphCanvas extends StatefulWidget {
   final List<db.Palace> palaces;
   final int? initialPalaceId;
 
-  const GraphCanvas({super.key, required this.nodes, required this.edges, required this.palaces, this.initialPalaceId});
+  const GraphCanvas(
+      {super.key,
+      required this.nodes,
+      required this.edges,
+      required this.palaces,
+      this.initialPalaceId});
 
   @override
   State<GraphCanvas> createState() => _GraphCanvasState();
@@ -17,8 +22,9 @@ class GraphCanvas extends StatefulWidget {
 class _GraphCanvasState extends State<GraphCanvas> {
   final Map<String, Offset> _positions = {};
   final double _canvasSize = 8000.0;
-  final TransformationController _transformationController = TransformationController();
-  
+  final TransformationController _transformationController =
+      TransformationController();
+
   String _searchQuery = '';
   int? _selectedPalaceId;
 
@@ -27,7 +33,7 @@ class _GraphCanvasState extends State<GraphCanvas> {
     super.initState();
     _selectedPalaceId = widget.initialPalaceId;
     _runPhysicsSimulation();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenSize = MediaQuery.of(context).size;
       final dx = (_canvasSize / 2) - (screenSize.width / 2);
@@ -44,14 +50,18 @@ class _GraphCanvasState extends State<GraphCanvas> {
 
     // Initial random spawn near the center
     for (var node in widget.nodes) {
-      _positions[node.id] = center + Offset(random.nextDouble() * 600 - 300, random.nextDouble() * 600 - 300);
+      _positions[node.id] = center +
+          Offset(
+              random.nextDouble() * 600 - 300, random.nextDouble() * 600 - 300);
     }
 
     double k = 200.0; // Optimal distance between nodes
-    
+
     // Run 100 fast mathematical iterations to untangle the web
     for (int i = 0; i < 100; i++) {
-      Map<String, Offset> displacements = { for (var n in widget.nodes) n.id: Offset.zero };
+      Map<String, Offset> displacements = {
+        for (var n in widget.nodes) n.id: Offset.zero
+      };
 
       // 1. Repulsion (Nodes push each other away)
       for (int a = 0; a < widget.nodes.length; a++) {
@@ -70,7 +80,8 @@ class _GraphCanvasState extends State<GraphCanvas> {
 
       // 2. Attraction (Edges pull connected nodes together)
       for (var edge in widget.edges) {
-        if (_positions.containsKey(edge.sourceId) && _positions.containsKey(edge.targetId)) {
+        if (_positions.containsKey(edge.sourceId) &&
+            _positions.containsKey(edge.targetId)) {
           var delta = _positions[edge.sourceId]! - _positions[edge.targetId]!;
           var dist = delta.distance;
           if (dist < 0.1) dist = 0.1;
@@ -89,7 +100,8 @@ class _GraphCanvasState extends State<GraphCanvas> {
 
       // Apply cooling displacements
       for (var node in widget.nodes) {
-        _positions[node.id] = _positions[node.id]! + displacements[node.id]! * 0.1;
+        _positions[node.id] =
+            _positions[node.id]! + displacements[node.id]! * 0.1;
       }
     }
   }
@@ -137,7 +149,10 @@ class _GraphCanvasState extends State<GraphCanvas> {
                 ),
                 ...activeNodes.map((node) {
                   final pos = _positions[node.id] ?? const Offset(0, 0);
-                  final isMatch = _searchQuery.isNotEmpty && node.label.toLowerCase().contains(_searchQuery.toLowerCase());
+                  final isMatch = _searchQuery.isNotEmpty &&
+                      node.label
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase());
 
                   return Positioned(
                     left: pos.dx - 75,
@@ -145,25 +160,41 @@ class _GraphCanvasState extends State<GraphCanvas> {
                     child: GestureDetector(
                       onPanUpdate: (details) {
                         setState(() {
-                          final scale = _transformationController.value.getMaxScaleOnAxis();
-                          _positions[node.id] = _positions[node.id]! + (details.delta / scale);
+                          final scale = _transformationController.value
+                              .getMaxScaleOnAxis();
+                          _positions[node.id] =
+                              _positions[node.id]! + (details.delta / scale);
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isMatch ? Colors.amber.shade700 : Colors.teal.shade700,
+                          color: isMatch
+                              ? Colors.amber.shade700
+                              : Colors.teal.shade700,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
-                            if (isMatch) BoxShadow(color: Colors.amber.withOpacity(0.8), blurRadius: 10, spreadRadius: 2)
-                            else BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(2, 2))
+                            if (isMatch)
+                              BoxShadow(
+                                  color: Colors.amber.withOpacity(0.8),
+                                  blurRadius: 10,
+                                  spreadRadius: 2)
+                            else
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(2, 2))
                           ],
                         ),
                         constraints: const BoxConstraints(maxWidth: 150),
                         child: Text(
                           node.label,
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: isMatch ? Colors.black : Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: isMatch ? Colors.black : Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -173,25 +204,31 @@ class _GraphCanvasState extends State<GraphCanvas> {
             ),
           ),
         ),
-        
+
         // UI Overlay: Search Bar & Session Filter
         Positioned(
-          top: 16, left: 16, right: 16,
+          top: 16,
+          left: 16,
+          right: 16,
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextField(
                   onChanged: (val) => setState(() => _searchQuery = val),
-                  style: const TextStyle(color: Colors.black), // FIXED: Black text for visibility
+                  style: const TextStyle(
+                      color: Colors.black), // FIXED: Black text for visibility
                   decoration: InputDecoration(
                     hintText: 'Interrogate neural pathways...',
                     hintStyle: TextStyle(color: Colors.grey.shade600),
                     prefixIcon: const Icon(Icons.search, color: Colors.black),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.95),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -206,14 +243,20 @@ class _GraphCanvasState extends State<GraphCanvas> {
                       child: DropdownButton<int?>(
                         value: _selectedPalaceId,
                         isExpanded: true,
-                        icon: const Icon(Icons.filter_list, color: Colors.black),
+                        icon:
+                            const Icon(Icons.filter_list, color: Colors.black),
                         dropdownColor: Colors.white,
-                        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold),
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('Global Grid (All Sessions)')),
-                          ...widget.palaces.map((p) => DropdownMenuItem(value: p.id, child: Text(p.title))),
+                          const DropdownMenuItem(
+                              value: null,
+                              child: Text('Global Grid (All Sessions)')),
+                          ...widget.palaces.map((p) => DropdownMenuItem(
+                              value: p.id, child: Text(p.title))),
                         ],
-                        onChanged: (val) => setState(() => _selectedPalaceId = val),
+                        onChanged: (val) =>
+                            setState(() => _selectedPalaceId = val),
                       ),
                     ),
                   ),
@@ -234,10 +277,14 @@ class _EdgePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paintEdge = Paint()..color = Colors.grey.shade500..strokeWidth = 2.0;
+    final paintEdge = Paint()
+      ..color = Colors.grey.shade500
+      ..strokeWidth = 2.0;
     for (final edge in edges) {
-      if (positions.containsKey(edge.sourceId) && positions.containsKey(edge.targetId)) {
-        canvas.drawLine(positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
+      if (positions.containsKey(edge.sourceId) &&
+          positions.containsKey(edge.targetId)) {
+        canvas.drawLine(
+            positions[edge.sourceId]!, positions[edge.targetId]!, paintEdge);
       }
     }
   }
