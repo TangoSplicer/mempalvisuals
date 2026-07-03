@@ -20,7 +20,8 @@ class _GraphCanvasState extends State<GraphCanvas> {
   void initState() {
     super.initState();
     // This physics algorithm mimics magnetic repulsion and spring tension to build the web
-    algorithm = FruchtermanReingoldAlgorithm(FruchtermanReingoldConfiguration(iterations: 1000));
+    algorithm = FruchtermanReingoldAlgorithm(
+        FruchtermanReingoldConfiguration(iterations: 1000));
 
     final Map<String, Node> gNodes = {};
     for (final n in widget.nodes) {
