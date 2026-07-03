@@ -12,17 +12,27 @@ class GraphScreen extends ConsumerWidget {
     final repo = ref.read(palaceRepositoryProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(palaceId == null ? 'Global Knowledge Graph' : 'Session Neural Pathway'),
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+        title: Text(palaceId == null
+            ? 'Global Knowledge Graph'
+            : 'Session Neural Pathway'),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context)),
       ),
       body: FutureBuilder(
         future: Future.wait([
-          palaceId == null ? repo.getAllNodes() : repo.getNodesForPalace(palaceId!),
-          palaceId == null ? repo.getAllEdges() : repo.getEdgesForPalace(palaceId!)
+          palaceId == null
+              ? repo.getAllNodes()
+              : repo.getNodesForPalace(palaceId!),
+          palaceId == null
+              ? repo.getAllEdges()
+              : repo.getEdgesForPalace(palaceId!)
         ]),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          return GraphCanvas(nodes: snapshot.data![0], edges: snapshot.data![1]);
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
+          return GraphCanvas(
+              nodes: snapshot.data![0], edges: snapshot.data![1]);
         },
       ),
     );
