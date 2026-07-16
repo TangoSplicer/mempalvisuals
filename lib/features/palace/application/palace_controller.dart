@@ -8,8 +8,10 @@ class PalaceState {
   final int? palaceId;
   final List<ChatMessage> messages;
   final bool isProcessing;
-  PalaceState({this.palaceId, this.messages = const [], this.isProcessing = false});
-  PalaceState copyWith({int? palaceId, List<ChatMessage>? messages, bool? isProcessing}) {
+  PalaceState(
+      {this.palaceId, this.messages = const [], this.isProcessing = false});
+  PalaceState copyWith(
+      {int? palaceId, List<ChatMessage>? messages, bool? isProcessing}) {
     return PalaceState(
       palaceId: palaceId ?? this.palaceId,
       messages: messages ?? this.messages,
@@ -22,10 +24,11 @@ class PalaceController extends StateNotifier<PalaceState> {
   final GeminiService _geminiService;
   final PalaceRepository _repository;
 
-  PalaceController(this._geminiService, this._repository) : super(PalaceState());
+  PalaceController(this._geminiService, this._repository)
+      : super(PalaceState());
 
   void clearState() {
-    state = PalaceState(); 
+    state = PalaceState();
   }
 
   Future<void> loadExistingPalace(int palaceId) async {
@@ -36,11 +39,14 @@ class PalaceController extends StateNotifier<PalaceState> {
   Future<void> submitThought(String text) async {
     if (text.isEmpty) return;
 
-    int currentId = state.palaceId ?? await _repository.createRoom('Session ${DateTime.now().toLocal().toString().split('.')[0]}');
+    int currentId = state.palaceId ??
+        await _repository.createRoom(
+            'Session ${DateTime.now().toLocal().toString().split('.')[0]}');
     await _repository.saveMessage(currentId, text, true);
-    
+
     var history = await _repository.getMessagesForPalace(currentId);
-    state = state.copyWith(palaceId: currentId, messages: history, isProcessing: true);
+    state = state.copyWith(
+        palaceId: currentId, messages: history, isProcessing: true);
 
     // TRACK 3: Auto-name the room if this is the first real message
     if (history.where((m) => m.isUser).length == 1) {
@@ -54,27 +60,33 @@ class PalaceController extends StateNotifier<PalaceState> {
     final nodes = await _repository.getNodesForPalace(currentId);
     final edges = await _repository.getEdgesForPalace(currentId);
     final contextBuilder = StringBuffer();
-    
+
     if (nodes.isNotEmpty) {
       contextBuilder.writeln("--- EXISTING GRAPH NODES ---");
-      for (var n in nodes) { contextBuilder.writeln("ID: ${n.id} | Label: ${n.label}"); }
+      for (var n in nodes) {
+        contextBuilder.writeln("ID: ${n.id} | Label: ${n.label}");
+      }
     }
     if (edges.isNotEmpty) {
       contextBuilder.writeln("--- CAUSAL RELATIONSHIPS ---");
-      for (var e in edges) { contextBuilder.writeln("[${e.sourceId}] --(${e.label})--> [${e.targetId}]"); }
+      for (var e in edges) {
+        contextBuilder
+            .writeln("[${e.sourceId}] --(${e.label})--> [${e.targetId}]");
+      }
     }
 
-    List<Map<String, dynamic>> mappedHistory = history.map((m) => {
-      'isUser': m.isUser,
-      'text': m.messageText
-    }).toList();
+    List<Map<String, dynamic>> mappedHistory = history
+        .map((m) => {'isUser': m.isUser, 'text': m.messageText})
+        .toList();
 
     try {
-      final aiResponse = await _geminiService.generateConversationalReply(text, contextBuilder.toString(), mappedHistory);
+      final aiResponse = await _geminiService.generateConversationalReply(
+          text, contextBuilder.toString(), mappedHistory);
       if (aiResponse != null) {
         await _repository.saveMessage(currentId, aiResponse, false);
       } else {
-        await _repository.saveMessage(currentId, 'System Error: Failed to generate response.', false);
+        await _repository.saveMessage(
+            currentId, 'System Error: Failed to generate response.', false);
       }
     } catch (e) {
       await _repository.saveMessage(currentId, 'Error: $e', false);
@@ -98,6 +110,8 @@ class PalaceController extends StateNotifier<PalaceState> {
   }
 }
 
-final palaceControllerProvider = StateNotifierProvider<PalaceController, PalaceState>((ref) {
-  return PalaceController(ref.read(geminiServiceProvider), ref.read(palaceRepositoryProvider));
+final palaceControllerProvider =
+    StateNotifierProvider<PalaceController, PalaceState>((ref) {
+  return PalaceController(
+      ref.read(geminiServiceProvider), ref.read(palaceRepositoryProvider));
 });
