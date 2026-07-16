@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+  final String _endpoint =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
@@ -14,20 +15,34 @@ class GeminiService {
     if (apiKey.isEmpty) return null;
 
     final payload = {
-      "contents": [{"parts": [{"text": "Summarize this into a concise 2-4 word title. Respond ONLY with the title. Message: $firstMessage"}]}],
+      "contents": [
+        {
+          "parts": [
+            {
+              "text":
+                  "Summarize this into a concise 2-4 word title. Respond ONLY with the title. Message: $firstMessage"
+            }
+          ]
+        }
+      ],
       "generationConfig": {"temperature": 0.3}
     };
 
     try {
-      final response = await _dio.post('$_endpoint?key=$apiKey', data: payload, options: Options(headers: {'Content-Type': 'application/json'}));
+      final response = await _dio.post('$_endpoint?key=$apiKey',
+          data: payload,
+          options: Options(headers: {'Content-Type': 'application/json'}));
       if (response.statusCode == 200) {
-        return response.data['candidates'][0]['content']['parts'][0]['text'].toString().trim();
+        return response.data['candidates'][0]['content']['parts'][0]['text']
+            .toString()
+            .trim();
       }
     } catch (_) {}
     return null;
   }
 
-  Future<String?> generateConversationalReply(String userInput, String localContext, List<Map<String, dynamic>> history) async {
+  Future<String?> generateConversationalReply(String userInput,
+      String localContext, List<Map<String, dynamic>> history) async {
     final prefs = await SharedPreferences.getInstance();
     final apiKey = prefs.getString('gemini_api_key') ?? '';
     if (apiKey.isEmpty) throw Exception('API Key missing.');
@@ -42,25 +57,39 @@ $localContext
 ''';
 
     List<Map<String, dynamic>> contents = [];
-    final recentHistory = history.length > 10 ? history.sublist(history.length - 10) : history;
+    final recentHistory =
+        history.length > 10 ? history.sublist(history.length - 10) : history;
     for (var msg in recentHistory) {
       if (msg['text'].toString().startsWith('System')) continue;
       contents.add({
         "role": msg['isUser'] == true ? "user" : "model",
-        "parts": [{"text": msg['text']}]
+        "parts": [
+          {"text": msg['text']}
+        ]
       });
     }
 
-    contents.add({"role": "user", "parts": [{"text": userInput}]});
+    contents.add({
+      "role": "user",
+      "parts": [
+        {"text": userInput}
+      ]
+    });
 
     final payload = {
-      "systemInstruction": {"parts": [{"text": systemInstruction}]},
+      "systemInstruction": {
+        "parts": [
+          {"text": systemInstruction}
+        ]
+      },
       "contents": contents,
       "generationConfig": {"temperature": 0.7}
     };
 
     try {
-      final response = await _dio.post('$_endpoint?key=$apiKey', data: payload, options: Options(headers: {'Content-Type': 'application/json'}));
+      final response = await _dio.post('$_endpoint?key=$apiKey',
+          data: payload,
+          options: Options(headers: {'Content-Type': 'application/json'}));
       if (response.statusCode == 200) {
         return response.data['candidates'][0]['content']['parts'][0]['text'];
       }
@@ -94,20 +123,35 @@ Return ONLY a valid JSON object.
 ''';
 
     final payload = {
-      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
-      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
+      "contents": [
+        {
+          "parts": [
+            {"text": systemPrompt},
+            {"text": "User Input: $userInput"}
+          ]
+        }
+      ],
+      "generationConfig": {
+        "temperature": 0.1,
+        "responseMimeType": "application/json"
+      }
     };
 
     int maxRetries = 3;
-    int retryDelay = 2000; 
+    int retryDelay = 2000;
 
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        final response = await _dio.post('$_endpoint?key=$apiKey', data: payload, options: Options(headers: {'Content-Type': 'application/json'}, validateStatus: (status) => status != null && status < 600));
+        final response = await _dio.post('$_endpoint?key=$apiKey',
+            data: payload,
+            options: Options(
+                headers: {'Content-Type': 'application/json'},
+                validateStatus: (status) => status != null && status < 600));
 
         if (response.statusCode == 200) {
-          String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
-          
+          String textResponse =
+              response.data['candidates'][0]['content']['parts'][0]['text'];
+
           // BULLETPROOF JSON EXTRACTION
           int startIndex = textResponse.indexOf('{');
           int endIndex = textResponse.lastIndexOf('}');
