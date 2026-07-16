@@ -77,6 +77,25 @@ $localContext
   }
 
   // TRACK 2: Deep Ontological Extraction
+  Future<String?> generateRoomTitle(String firstMessage) async {
+    final prefs = await SharedPreferences.getInstance();
+    final apiKey = prefs.getString('gemini_api_key') ?? '';
+    if (apiKey.isEmpty) return null;
+
+    final payload = {
+      "contents": [{"parts": [{"text": "Summarize this into a concise 2-4 word title. Respond ONLY with the title. Message: $firstMessage"}]}],
+      "generationConfig": {"temperature": 0.3}
+    };
+
+    try {
+      final response = await _dio.post('$_endpoint?key=$apiKey', data: payload, options: Options(headers: {'Content-Type': 'application/json'}));
+      if (response.statusCode == 200) {
+        return response.data['candidates'][0]['content']['parts'][0]['text'].toString().trim();
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<Map<String, dynamic>?> extractGraphData(String userInput) async {
     final prefs = await SharedPreferences.getInstance();
     final apiKey = prefs.getString('gemini_api_key') ?? '';
