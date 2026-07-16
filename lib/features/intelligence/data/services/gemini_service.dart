@@ -83,14 +83,27 @@ $localContext
     if (apiKey.isEmpty) return null;
 
     final payload = {
-      "contents": [{"parts": [{"text": "Summarize this into a concise 2-4 word title. Respond ONLY with the title. Message: $firstMessage"}]}],
+      "contents": [
+        {
+          "parts": [
+            {
+              "text":
+                  "Summarize this into a concise 2-4 word title. Respond ONLY with the title. Message: $firstMessage"
+            }
+          ]
+        }
+      ],
       "generationConfig": {"temperature": 0.3}
     };
 
     try {
-      final response = await _dio.post('$_endpoint?key=$apiKey', data: payload, options: Options(headers: {'Content-Type': 'application/json'}));
+      final response = await _dio.post('$_endpoint?key=$apiKey',
+          data: payload,
+          options: Options(headers: {'Content-Type': 'application/json'}));
       if (response.statusCode == 200) {
-        return response.data['candidates'][0]['content']['parts'][0]['text'].toString().trim();
+        return response.data['candidates'][0]['content']['parts'][0]['text']
+            .toString()
+            .trim();
       }
     } catch (_) {}
     return null;

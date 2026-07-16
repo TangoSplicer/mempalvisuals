@@ -93,7 +93,7 @@ class PalaceController extends StateNotifier<PalaceState> {
 
     // TRACK 2: Fire Deep Graph Extraction (Background - Non-blocking)
     _runBackgroundExtraction(text, currentId);
-    
+
     // TRACK 3: Auto-name the room if this is the first real message
     if (history.where((m) => m.isUser).length == 1) {
       _geminiService.generateRoomTitle(text).then((title) {
