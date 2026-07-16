@@ -4,12 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   final Dio _dio;
-  final String _endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+  final String _endpoint =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   GeminiService() : _dio = Dio();
 
   // TRACK 1: Conversational RAG Engine
-  Future<String?> generateConversationalReply(String userInput, String localContext, List<Map<String, dynamic>> history) async {
+  Future<String?> generateConversationalReply(String userInput,
+      String localContext, List<Map<String, dynamic>> history) async {
     final prefs = await SharedPreferences.getInstance();
     final apiKey = prefs.getString('gemini_api_key') ?? '';
     if (apiKey.isEmpty) throw Exception('API Key missing.');
@@ -24,27 +26,36 @@ $localContext
 ''';
 
     List<Map<String, dynamic>> contents = [];
-    
+
     // Inject historical context (limit to last 10 messages to save tokens)
-    final recentHistory = history.length > 10 ? history.sublist(history.length - 10) : history;
+    final recentHistory =
+        history.length > 10 ? history.sublist(history.length - 10) : history;
     for (var msg in recentHistory) {
       // Filter out our own old system logging messages
       if (msg['text'].toString().startsWith('System:')) continue;
-      
+
       contents.add({
         "role": msg['isUser'] == true ? "user" : "model",
-        "parts": [{"text": msg['text']}]
+        "parts": [
+          {"text": msg['text']}
+        ]
       });
     }
 
     // Append the current active thought
     contents.add({
       "role": "user",
-      "parts": [{"text": userInput}]
+      "parts": [
+        {"text": userInput}
+      ]
     });
 
     final payload = {
-      "systemInstruction": {"parts": [{"text": systemInstruction}]},
+      "systemInstruction": {
+        "parts": [
+          {"text": systemInstruction}
+        ]
+      },
       "contents": contents,
       "generationConfig": {"temperature": 0.7}
     };
@@ -89,12 +100,22 @@ Return ONLY a valid JSON object.
 ''';
 
     final payload = {
-      "contents": [{"parts": [{"text": systemPrompt}, {"text": "User Input: $userInput"}]}],
-      "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
+      "contents": [
+        {
+          "parts": [
+            {"text": systemPrompt},
+            {"text": "User Input: $userInput"}
+          ]
+        }
+      ],
+      "generationConfig": {
+        "temperature": 0.1,
+        "responseMimeType": "application/json"
+      }
     };
 
     int maxRetries = 3;
-    int retryDelay = 2000; 
+    int retryDelay = 2000;
 
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -103,13 +124,17 @@ Return ONLY a valid JSON object.
           data: payload,
           options: Options(
             headers: {'Content-Type': 'application/json'},
-            validateStatus: (status) => status != null && status < 600, 
+            validateStatus: (status) => status != null && status < 600,
           ),
         );
 
         if (response.statusCode == 200) {
-          String textResponse = response.data['candidates'][0]['content']['parts'][0]['text'];
-          textResponse = textResponse.replaceAll(RegExp(r'```json\n?'), '').replaceAll(RegExp(r'```\n?'), '').trim();
+          String textResponse =
+              response.data['candidates'][0]['content']['parts'][0]['text'];
+          textResponse = textResponse
+              .replaceAll(RegExp(r'```json\n?'), '')
+              .replaceAll(RegExp(r'```\n?'), '')
+              .trim();
           return jsonDecode(textResponse);
         } else if (response.statusCode == 503) {
           if (attempt == maxRetries) return null;
