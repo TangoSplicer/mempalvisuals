@@ -18,15 +18,20 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
   void initState() {
     super.initState();
     if (widget.existingPalaceId != null) {
-      Future.microtask(() => ref.read(palaceControllerProvider.notifier).loadExistingPalace(widget.existingPalaceId!));
+      Future.microtask(() => ref
+          .read(palaceControllerProvider.notifier)
+          .loadExistingPalace(widget.existingPalaceId!));
     } else {
-      Future.microtask(() => ref.read(palaceControllerProvider.notifier).clearState());
+      Future.microtask(
+          () => ref.read(palaceControllerProvider.notifier).clearState());
     }
   }
 
   void _handleSubmitting() {
     if (_thoughtController.text.isNotEmpty) {
-      ref.read(palaceControllerProvider.notifier).submitThought(_thoughtController.text);
+      ref
+          .read(palaceControllerProvider.notifier)
+          .submitThought(_thoughtController.text);
       _thoughtController.clear();
     }
   }
@@ -36,16 +41,20 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
     final state = ref.watch(palaceControllerProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingPalaceId != null ? 'Memory Room' : 'New Room'),
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+        title:
+            Text(widget.existingPalaceId != null ? 'Memory Room' : 'New Room'),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context)),
         actions: [
           if (widget.existingPalaceId != null)
             IconButton(
               icon: const Icon(Icons.hub),
               onPressed: () => Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (_) => GraphScreen(palaceId: widget.existingPalaceId))
-              ),
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          GraphScreen(palaceId: widget.existingPalaceId))),
             ),
         ],
       ),
@@ -58,33 +67,46 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
               itemBuilder: (context, index) {
                 final msg = state.messages[index];
                 return Align(
-                  alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: msg.isUser ? Colors.teal.shade700 : Colors.blueGrey.shade800,
+                      color: msg.isUser
+                          ? Colors.teal.shade700
+                          : Colors.blueGrey.shade800,
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    child: Text(msg.messageText, style: const TextStyle(color: Colors.white)),
+                    child: Text(msg.messageText,
+                        style: const TextStyle(color: Colors.white)),
                   ),
                 );
               },
             ),
           ),
-          
+
           // Foreground RAG loading bar
           if (state.isProcessing) const LinearProgressIndicator(),
-          
+
           // Background Graph Extraction loading indicator
           if (state.isExtracting)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal)),
+                  const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.teal)),
                   const SizedBox(width: 12),
-                  Text('Mapping neural pathways...', style: TextStyle(color: Colors.grey.shade400, fontStyle: FontStyle.italic, fontSize: 13)),
+                  Text('Mapping neural pathways...',
+                      style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 13)),
                 ],
               ),
             ),
@@ -97,11 +119,15 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
                   Expanded(
                     child: TextField(
                       controller: _thoughtController,
-                      decoration: const InputDecoration(hintText: 'Enter thought...', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                          hintText: 'Enter thought...',
+                          border: OutlineInputBorder()),
                       onSubmitted: (_) => _handleSubmitting(),
                     ),
                   ),
-                  IconButton(icon: const Icon(Icons.send), onPressed: _handleSubmitting),
+                  IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _handleSubmitting),
                 ],
               ),
             ),
