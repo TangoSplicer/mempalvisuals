@@ -41,7 +41,7 @@ class _PalaceScreenState extends ConsumerState<PalaceScreen> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'txt'],
+        allowedExtensions: ['pdf', 'txt', 'docx'],
       );
 
       if (result != null && result.files.single.path != null) {

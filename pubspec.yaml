@@ -41,3 +41,4 @@ flutter:
 
 dependency_overrides:
   flutter_plugin_android_lifecycle: "2.0.22"
+  docx_to_text: ^1.0.1
